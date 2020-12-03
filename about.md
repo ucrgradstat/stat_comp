@@ -1,0 +1,8 @@
+---
+layout: page
+title: About
+permalink: /about/
+---
+
+This website provides different tutorials for your computing needs. This website is maintained by UCR's Department of Statistics Graduate Student Association. All tutorials submitted to the website were created by students who wanted to make it easier for the next person to learn about a different topic. For more information about the tutorials, please email us at ucr.grad.stat@gmail.com
+
