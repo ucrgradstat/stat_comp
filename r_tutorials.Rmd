@@ -6,13 +6,13 @@ date: "`r Sys.Date()`"
 site: distill::distill_website
 ---
 
-## Parallel Programming
+### Parallel Programming
 
 Here is a tutorial on how to use the parallel package in R.
 
 [DOCS](hpcc/parallel_notebook.nb.html)
 
-## R Markdown
+### R Markdown
 
 Here is a document that provides the basics of R Markdown. Download the RMD and BIB file if you wish to compile it yourself.
 The PDF File shows how the RMD file should compile to a pdf.

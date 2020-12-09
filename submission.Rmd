@@ -9,7 +9,7 @@ date: "`r Sys.Date()`"
 site: distill::distill_website
 ---
 
-## Guidelines
+### Guidelines
 
 You are welcome to create the tutorial any way you want. Our only requirement is that the tutorial has an html file that we can use for the website. You may also submit an RMarkdown file and we will knit the document into an html file. 
 
@@ -21,7 +21,7 @@ Lastly, make sure you cite any code or work you use.
 
 If you need any help, please feel free to email us at ucr.grad.stat@gmail.com.
 
-## Removing A Tutorial
+### Removing A Tutorial
 
 If you wish to no longer have your tutorial on this website, please email us and we will gladly remove it.
 
