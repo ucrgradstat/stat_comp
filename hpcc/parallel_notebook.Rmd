@@ -1,0 +1,197 @@
+---
+title: "Parallel Computing in R with `parallel`"
+author: "Isaac Quintanilla Salinas"
+description: Tutorial for parallel processing using the R package parallel.
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(cache = TRUE)
+```
+
+## Introduction
+
+R is designed to only use one cpu (or core) when running tasks. However, a computer may have more than one core that can be used to run tasks. The use of more than one core is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the `parallel` package and utilizing more cores in a computer.
+
+For more information about parallel processing in R, visit the following sites:
+
+ - [https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html](https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html)
+ - [https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html](https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html)
+ - [https://psu-psychology.github.io/r-bootcamp-2018/talks/parallel_r.html](https://psu-psychology.github.io/r-bootcamp-2018/talks/parallel_r.html)
+
+## Parallelization
+
+The `parallel` package allows you to use multiple cpus at the same time to complete repetitive tasks. For example, if you have to run a simulation study with 100 data sets, you can task 4 cpus to analyze 25 data sets at the same time. This ideally will take a forth of the time it will take 1 cpu to complete 100 data sets.
+
+The only caveaut with using the `parallel` package is that each process needs to be independent of all processes. If you are running a for loop that depends on the previous iteration, the cpu cannot process the task because it has missing information. Therefore, you will need identify the tasks that are not dependent of one another and parallelize it.
+
+With the parallel package you can use two family of functions: `mc*()` and `par*()` functions. The main difference between these functions is that `mc*()` uses a forking method to parallelize your code, and the `par*()` uses a socket method to parallelize your code. Both methods has their strengths and weaknesses. When using the HPCC cluster, I recommend using the `mc*()` functions when possible. There are brief descriptions for each method below.
+
+### Forking
+
+The forking method is implemented when using the `mc*()` functions. Below is a list of pros and cons:
+
+#### Pros:
+
+- Easier to implement
+
+- Your environment is copied to the cpu
+
+- Has the potential to use less resources
+
+- Wraps USER function with the `try()` function
+
+#### Cons:
+
+- Only works on POSIX systems (Mac or Linux)
+
+- Does not work with multiple nodes^[You can think of as nodes as the processor. Each processor has a set number of cpus, if you need more cpus, you will need to use another node.]
+
+- May cause cross-contamination because the environment may change^[Mostly occurs with random number generation; however, this is generally not a problem.]
+
+Generally speaking, R copies its environment to a cpu and runs the process.
+
+
+### Socket
+
+The socket method is implemented when using the `par*()` functions. Below is a list of pros and cons:
+
+#### Pros:
+
+- Works on any system (Windows, Mac, and Linux)
+
+- Each process is unique
+
+- No cross-contamination
+
+- Can be used when multiple nodes are involved
+
+#### Cons:
+
+
+- The entire environment (including loaded functions) must be specified
+
+- More resource intensive
+
+- `try()` function is not implemented, when one cpu fails, the eniter cluster fails
+
+Generally speaking, R creates a new environment on each cpu.
+
+
+## Simulation Example
+
+To demonstrate how to use the `parallel` package in R, we conduct a simple simulation study showing how the estimates from the ordinary least squares estimator leads to unbiased results. 
+
+$$
+Y \sim N(\beta_0+X_1\beta_1+X_4\beta_5+X_3\beta_3,\sigma^2)
+$$
+
+
+### Simulation Functions
+
+The function below generates data from the model above and returns a data frame. The function needs the following arguments:
+
+ - `seed`: the value to set for the random number generator
+ - `nobs`: number of observations
+ - `beta`: a vector specifying the true values for the regression coefficients ($\beta_0$, $\beta_1$, $\beta_2$, $\beta_3$)
+ - `sigma`: the variance for the model above
+ - `xmeans`: a vector of means used to generate the values for $X_1$, $X_2$, and $X_3$
+ - `xsigs`: a matrix for the covariance for $X_1$, $X_2$, and $X_3$
+
+```{r}
+data_sim <- function(seed, nobs, beta, sigma, xmeans, xsigs){
+  set.seed(seed)
+  xrn <- rmvnorm(nobs, mean = xmeans, sigma = xsigs)
+  xped <- cbind(rep(1,nobs),xrn)
+  y <- xped %*% beta + rnorm(nobs ,0, sigma)
+  df <- data.frame(x=xrn, y=y)
+  return(df)
+}
+```
+
+
+
+```{r}
+parallel_lm <- function(data){
+  lm_res <- lm(y ~ x.1 + x.2 + x.3, data = data)
+  return(list(coef=coef(lm_res), lm_results=lm_res))
+}
+```
+
+#### Loading R Packages
+
+```{r}
+library(parallel)
+library(mvtnorm)
+```
+
+
+
+#### Setting Parameters
+
+```{r}
+N <- 10000
+nobs <- 200
+beta <- c(5, 4, -5, -3)
+xmeans <- c(-2, 0, 2)
+xsigs <-diag(rep(1, 3))
+sig <- 3
+```
+
+#### Simulating Data
+
+```{r}
+start <- Sys.time()
+parallel_data <- lapply(c(1:N), data_sim,
+                          nobs = nobs, beta = beta, sigma = sig, xmeans = xmeans, xsigs = xsigs)
+Sys.time()-start
+```
+
+### Results
+
+#### Setting Parallel Parameter
+
+```{r}
+ncores <- 8
+```
+
+#### Using `lapply()`
+
+```{r}
+start <- Sys.time()
+lapply_results <- lapply(parallel_data, parallel_lm)
+(lapply_time <- Sys.time()-start)
+```
+
+#### Using `mclapply()`
+
+```{r}
+start <- Sys.time()
+mclapply_results <- mclapply(parallel_data, parallel_lm, mc.cores = ncores)
+(mclapply_time <- Sys.time()-start)
+```
+
+#### Using `parLapply()`
+
+```{r}
+start <- Sys.time()
+cl <- makeCluster(ncores)
+clusterExport(cl, c("parallel_lm"))
+parLapply_results<-parLapply(cl,parallel_data,parallel_lm)
+stopCluster(cl)
+(parLapply_time <- Sys.time()-start)
+```
+## Notes
+
+### Speed Gains
+
+When parallelizing your code, the speed gains may not be noticeable. When using the `parallel` package, R assigns elements of a list or vector into different cores, known as overhead, which takes time. The time it takes to load the data may be longer than processing the data. Therefore, it may not be faster or take longer than using the `*apply()` functions.  It may be best to use one core or split up the data on your own. However, when processing your data takes much longer than your overhead time, the speed gains are noticeable.
+
+### Hyper-threading
+
+Certain computer processors have cores that are multi-threaded (hyper-threading). This means the computer views 1 physical core as 2 logical cores. While you certainly specify double the number of physical cores for your cluster, the speed gains is not equivalent as using proper physical cores. In my experience, it is not worth using the logical cores and just specify the number of physical cores in your computer. 
+

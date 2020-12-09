@@ -1,0 +1,48 @@
+{
+  "articles": [
+    {
+      "path": "about.html",
+      "title": "About",
+      "description": "This contains information about the website.\n",
+      "author": [],
+      "contents": "\nThis website provides different tutorials for your computing needs. This website is maintained by UCR’s Department of Statistics Graduate Student Association. All tutorials submitted to the website were created by students who wanted to make it easier for the next person to learn about a different topic. For more information about the tutorials, please email us at ucr.grad.stat@gmail.com\n\n\n\n",
+      "last_modified": "2020-12-08T23:38:28-08:00"
+    },
+    {
+      "path": "hpcc.html",
+      "title": "HPCC",
+      "description": "Here is a list of tutorials for UCR's High-Performance Computing Cluster (HPCC).\n",
+      "author": [],
+      "date": "`r Sys.Date()`",
+      "contents": "\nParallel Programming\nHere is a tutorial on how to use the parallel package in R.\nDOCS\n\n\n\n",
+      "last_modified": "2020-12-08T23:38:29-08:00"
+    },
+    {
+      "path": "index.html",
+      "title": "Welcome!",
+      "description": "We hope you find the tutorials provided by the graduate students informative! If you have any questions, please feel free to email us at ucr.grad.stat@gmail.com.\n",
+      "author": [],
+      "contents": "\nSubmitting Tutorials\nIf there is no tutorials for an issue you are facing, we encourage you to ask faculty for help. Once you resolved your issue, we encourage you to write and submit a tutorial, so the next student will have an easier time when facing your issue. For submitting a tutorial, please read the following page: HERE.\n\n\n\n",
+      "last_modified": "2020-12-08T23:38:29-08:00"
+    },
+    {
+      "path": "r_tutorials.html",
+      "title": "R Tutorials",
+      "description": "This page contains information on different R topics.\n",
+      "author": [],
+      "date": "`r Sys.Date()`",
+      "contents": "\nParallel Programming\nHere is a tutorial on how to use the parallel package in R.\nDOCS\nR Markdown\nHere is a document that provides the basics of R Markdown. Download the RMD and BIB file if you wish to compile it yourself. The PDF File shows how the RMD file should compile to a pdf.\nRMD | PDF | BIB\n\n\n\n",
+      "last_modified": "2020-12-08T23:38:29-08:00"
+    },
+    {
+      "path": "submission.html",
+      "title": "Submission",
+      "description": "This website was built by graduate students to help each other learn about computing. Completing a graduate school is tough, and learning how to code or use certain software makes it even more tough. We hope these tutorials make it a bit easier on you to learn. This website contains a certain number of tutorials, but it will not contain everything. \n\nMany graduate students have volunteered their time to create these tutorials. However, there may be a topic that we will not cover. Therefore, if you do learn something new that is not on the website, we encourage you to write a tutorial on how to do it. We would gladly host it on this website. Additionally, we will certainly give you credit for your work. Just follow the guidelines below and send us an email to ucr.grad.stat@gmail.com. With your help, this website will benefit everyone.\n",
+      "author": [],
+      "date": "`r Sys.Date()`",
+      "contents": "\nGuidelines\nYou are welcome to create the tutorial any way you want. Our only requirement is that the tutorial has an html file that we can use for the website. You may also submit an RMarkdown file and we will knit the document into an html file.\nIf you choose to provide data for your tutorial, please make sure the that data is publicly available. We recommend that you simulate your own data to prevent any issues. Additionally, the smaller the data set, the better.\nYou may also submit a YouTube video for your tutorial. All you need to do is provide the link to your video.\nLastly, make sure you cite any code or work you use.\nIf you need any help, please feel free to email us at ucr.grad.stat@gmail.com.\nRemoving A Tutorial\nIf you wish to no longer have your tutorial on this website, please email us and we will gladly remove it.\n\n\n\n",
+      "last_modified": "2020-12-08T23:38:29-08:00"
+    }
+  ],
+  "collections": []
+}
