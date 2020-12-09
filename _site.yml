@@ -1,6 +1,8 @@
 
 name: "stat_comp"
 title: "Statistical Computing"
+base_url: https://ucrgradstat.github.io/stat_comp
+repository_url: https://github.com/ucrgradstat/stat_comp
 description: |
   Statistical Computing
 output_dir: "docs"
@@ -18,7 +20,6 @@ navbar:
       href: r_tutorials.html
     - text: "Submissions"
       href: submission.html
-    - icon: fa-github fa-lg
-      href: https://github.com/ucrgradstat/stat_comp
+
 output: distill::distill_article
 exclude: ["hpcc/*_cache"]
