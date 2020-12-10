@@ -1,0 +1,12 @@
+---
+title: "Python Tutorials"
+description: |
+  This page contains information on different Python topics.
+date: "`r Sys.Date()`"
+site: distill::distill_website
+---
+There are currently no tutorials on Python. If you would like to submit a python tutorial, please let us know. 
+
+
+
+

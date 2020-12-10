@@ -9,14 +9,14 @@ theme: theme.css
 navbar:
   search: true
   right:
-    - text: "Home"
-      href: index.html
     - text: "About"
       href: about.html
     - text: "HPCC"
       href: hpcc.html
     - text: "R"
       href: r_tutorials.html
+    - text: "Python"
+      href: python_tutorials.html
     - text: "Submissions"
       href: submission.html
     - icon: fa-github fa-lg
