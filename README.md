@@ -31,6 +31,14 @@ output_dir: "docs"
 These lines ensure the website is build popularly. Additionally, make sure to keep the `.nojekyll` in the repository.
 
 
+## Tips for Building Website 
+
+- Make sure to have `README.html`
+
+- Use `.gitignore` to ignore cache folders from R Markdown files
+
+- Use `theme.css` to change the appearance of the website
+
 ## Tutorials
 
 The tutorials can be any format. However, to host it on the website, an html file is needed. If students submit an R Markdown file, compile it and use the html file.
