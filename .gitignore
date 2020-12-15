@@ -6,4 +6,4 @@ vendor
 .Rproj.user
 stat_comp.Rproj
 hpcc/*_cache
-README.md
+.Rhistory
