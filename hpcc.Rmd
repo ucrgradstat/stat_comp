@@ -7,10 +7,10 @@ date: "`r Sys.Date()`"
 site: distill::distill_website
 ---
 
-### Parallel Programming
+## Parallel Programming
 
-Here is a tutorial on how to use the parallel package in R.
+Here is an introduction tutorial on how to use the parallel package in R. 
 
 [DOCS](hpcc/parallel_notebook.nb.html)
 
-
+***
