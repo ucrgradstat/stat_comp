@@ -190,7 +190,7 @@ lapply_results <- lapply(parallel_data, parallel_lm)
 
 ## Using `mclapply()`
 
-The easiest way to parallelize is to use the `mclapply()` function. All you need to do is change the `lapply()` function to `mclapply()` and add the argument `mc.cores =  ncores`. The argument `mc.cores` specifies the number of cores for parallelization.
+The easiest way to parallelize is to use the `mclapply()` function. All you need to do is change the `lapply()` function to `mclapply()` and add the argument `mc.cores =  ncores` as the last argument. The argument `mc.cores` specifies the number of cores for parallelization.
 
 ```{r}
 start <- Sys.time()
@@ -212,13 +212,13 @@ The `makeCluster()` function sets up the cluster in your computer. You only need
 
 #### `clusterExport()`
 
-The `clusterExport()` function is needed to export user-created, package functions, or data to the cluster.
-You will need to specify the cluster to export the information (`cl`) and the name of the functions or data in a character vector. 
+The `clusterExport()` function is needed to export user-created functions, package functions, or data to the cluster.
+You will need to specify the cluster (`cl`) to export the information and the name of the functions or data in a character vector. 
 
 
 #### `parLapply()`
 
-The `parLapply()` is the parallel computing component. It is used the same way as the `lapply()`. The only difference is that you will need to specify the cluster (`cl`) as the first argument. The second argument goes as the `lapply()` function.
+The `parLapply()` is the parallel computing component. It is used the same way as the `lapply()` function. The only difference is that you will need to specify the cluster (`cl`) as the first argument. The second argument goes as the `lapply()` function.
 
 
 #### `stopCluster()`
@@ -228,7 +228,7 @@ The `stopCluster()` function closes the cluster down.
 
 ### Implementation
 
-The code below implements the `parLapply()`:
+The code below implements the `parLapply()` function:
 
 ```{r}
 start <- Sys.time()
@@ -249,6 +249,7 @@ mclapply_mat <- matrix(unlist(mclapply_results), nrow = 4)
 parLapply_mat <- matrix(unlist(parLapply_results), nrow = 4)
 ```
 
+Use the `rowMeans()` on all objects to show each method provides consistent estimates of the regression parameters.
 
 ```{r}
 rowMeans(lapply_mat)
