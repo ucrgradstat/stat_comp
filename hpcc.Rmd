@@ -2,15 +2,22 @@
 title: "HPCC"
 description: |
   Here is a list of tutorials for UCR's High-Performance Computing Cluster (HPCC).
-
 date: "`r Sys.Date()`"
 site: distill::distill_website
 ---
 
-## Parallel Programming
+## Parallel Programming in `parallel`
 
-Here is an introduction tutorial on how to use the parallel package in R. 
+Here is an introduction tutorial on how to use the `parallel` package in R. 
 
 [DOCS](hpcc/parallel_notebook.nb.html)
+
+***
+
+## Parallel Programming in `batchtools`
+
+Here is an introduction tutorial on how to use the `batchtools` package in R. 
+
+[DOCS](hpcc/batchtools_notebook.nb.html)
 
 ***

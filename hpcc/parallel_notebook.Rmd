@@ -2,7 +2,7 @@
 title: "Parallel Computing in R with `parallel`"
 author: "Isaac Quintanilla Salinas"
 description: Tutorial for parallel processing using the R package parallel.
-date: "12/18/2020"
+date: "`r format(Sys.time(),'%m-%d-%Y')`"
 output: 
   html_notebook:
     toc: true

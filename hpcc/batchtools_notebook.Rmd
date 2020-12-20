@@ -1,0 +1,290 @@
+---
+title: "Parallel Computing in R with `batchtools`"
+author: "Isaac Quintanilla Salinas"
+description: Tutorial for parallel processing using the R package batchtools.
+date: "`r format(Sys.time(),'%m-%d-%Y')`"
+output: 
+  html_notebook:
+    toc: true
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+# Introduction
+
+R is designed to only use one cpu (or core) when running tasks. However, you may have access to a computer cluster[^1] that allows you to access more RAM and cpus. The use of more than one cpu is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the `batchtools` package and utilizing more cores in a cluster.
+
+[^1]: The cluster has a scheduling system implemented.
+
+This tutorial is built off the information provided by UCR's High Performance Computing Center tutorial of `batchtools` package. This tutorial uses a simulation study to show you the power of `batchtools`. For more information visit their help documentation for [batchtools](https://hpcc.ucr.edu/manuals_linux-cluster_parallelR.html).
+
+This tutorial is meant to be run on the [HPCC](https://hpcc.ucr.edu/) cluster at UCR. You will need an account to the HPCC cluster. If you are a graduate student in UCR's [Statistics Department](https://statistics.ucr.edu/), contact the UCR Statistics Graduate Student Association to gain access.
+
+This tutorial conducts different simulation scenarios to be submitted as jobs. It requires an amount of set up to be effective. There is an an R script that you can use that may provide better insight on using `batchtools`. You can access R script [here](batchtools.R)
+
+# Files, Functions and Packages
+
+## Files
+
+Before you begin, download these files to the directory you are working with. The `slurm.tmpl` file provides information to the slurm scheduler. The `.batchtools.conf.R` file tells R to create a cluster function for slurm. The period in front of `.batchtools.conf.R` will hide the file in your directory. It is there, it is just not displayed.
+
+```{r}
+download.file("https://bit.ly/3gZJBsy", "slurm.tmpl")
+download.file("https://bit.ly/3nvSNHA", ".batchtools.conf.R")
+```
+
+## Packages
+
+You will need to use 2 R packages: `RenvModule` and `batchtools`. The `RenvModule`[^2] package provides the tools to interact with modules in the cluster. The `batchtools` package provides the tools to parallelize your code. Both are needed. For this tutorial, you will also need to have the `mvtrnorm` package installed.
+
+[^2]: Fun Fact: This package is from HPCC
+
+```{r}
+library(RenvModule)
+library(batchtools)
+library(mvtnorm)
+```
+
+## Functions
+
+### `module()`
+
+The `module()` function loads different modules into the R environment.
+
+### `makeRegistry()`
+
+The `makeRegistry()` function creates a registry for `batchtools`. You can think of the registry as the communication center for R, your functions, and the cluster. It will store everything in a directory. The `makeRegistry()` function needs the argument `file.dir` argument, the location to store the registry, and `conf.file=.batchtools.conf.R`. Store the output from the function into an R object.
+
+### `batchMap()`
+
+The `batchMap()` function creates jobs to be submitted from a cluster. The first argument, `fun`, is the user-generated function and the additional arguments are for the user-generated function. The `batchMap()` function will produce a data frame of ids for each job as an output. The job ids are the numeric index of each element in a list/vector.
+
+### `submitJobs()`
+
+The `submitJobs()` function will submit jobs to the cluster. It will need output from the `batchMap()` function as the first argument. Additionally, it will need the location og the registry (`reg` argument), from a stored R object, and a list of resources (`resources` argument).
+
+### `getStatus()`
+
+The `getStatus()` function checks the status of your jobs and provides information of each jobs state.
+
+### `killJobs()`
+
+The `killJobs()` function will kill all your jobs. This is equivalent to `scancel`.
+
+### `loadResult()`
+
+The `loadResult()` function will load the results of each job. You will need to specify the id to load the results.
+
+### `clearRegistry()`
+
+The `clearRegistry()` function will delete files in the registry to re-submit jobs.
+
+### `removeRegistry()`
+
+The `removeRegistry()` function will delete the entire registry.
+
+# Simulation Example
+
+To demonstrate how to use the `batchtools` package in R, we conduct several simulation studies showing how the estimates from the ordinary least squares estimator leads to unbiased results. We will simulate data from the following models:
+
+$$
+Y \sim N(20+30X,\ 3)
+$$ $$
+Y \sim N(5-8X_1+2X_2,\ 3)
+$$
+
+$$
+Y \sim N(5+4X_1-5X_2-3X_3,\ 3)
+$$
+
+$$
+Y \sim N(5+4X_1+-5X_2-3X_3+6X_4,\ 3)
+$$ Each simulation scenario with have 500 data sets with 200 observations. The values for the predictor variables will be simulated by multivariate normal distributions. The mean vector for the predictors simulation are $(-2, 0)^T$, $(-2, 0)^T$, $(-2, 0, 2)^T$, $(-2, 0, 2 8)^T$. Each covariance for the predictor simulation will be an identity matrix.
+
+## Simulation Parameters
+
+The simulation parameters will be stored in a list. Each element in the list will contain information of the about the simulation and the formula for the `lm()` function.
+
+```{r}
+sim_list <- list(list(N = 500, # Number of Data sets
+                      nobs = 200, # Number of observations
+                      beta = c(20, 30), # beta parameters
+                      xmeans = c(0), # Means for predictors
+                      xsigs = diag(rep(1, 1)), # Variance for predictor
+                      sigma = 3, # Variance for error term
+                      formula = y ~ x), #Formula
+                 list(N = 500, # Number of Data sets
+                      nobs = 200, # Number of observations
+                      beta = c(5, -8, 2), # beta parameters
+                      xmeans = c(-2, 0), # Means for predictors
+                      xsigs = diag(rep(1, 2)), # Variance for predictor
+                      sigma = 3, # Variance for error term
+                      formula = y ~ x.1 + x.2), #Formula
+                 list(N = 500, # Number of Data sets
+                      nobs = 200, # Number of observations
+                      beta = c(5, 4, -5, -3), # beta parameters
+                      xmeans = c(-2, 0, 2), # Means for predictors
+                      xsigs = diag(rep(1, 3)), # Variance for predictor
+                      sigma = 3, # Variance for error term
+                      formula = y ~ x.1 + x.2 + x.3),  #Formula
+                 list(N = 500, # Number of Data sets
+                      nobs = 200, # Number of observations
+                      beta = c(5, 4, -5, -3, 6), # beta parameters
+                      xmeans = c(-2, 0, 2, 8), # Means for predictors
+                      xsigs = diag(rep(1, 4)), # Variance for predictor
+                      sigma = 3, # Variance for error term
+                      formula = y ~ x.1 + x.2 + x.3 + x.4) #Formula
+)
+```
+
+## Simulation Functions
+
+The function below generates 1 data set from a simulation scenario above and returns a data frame.
+
+```{r}
+data_set_sim <- function(seed, nobs, beta, sigma, xmeans, xsigs){ # Simulates the data set
+  set.seed(seed) # Sets a seed
+  xrn <- rmvnorm(nobs, mean = xmeans, sigma = xsigs) # Simulates Predictors
+  xped <- cbind(rep(1,nobs),xrn) # Creating Design Matrix
+  y <- xped %*% beta + rnorm(nobs ,0, sigma) # Simulating Y
+  df <- data.frame(x=xrn, y=y) # Creating Data Frame
+  return(df)
+}
+```
+
+The function needs the following arguments:
+
+-   `seed`: the value to set for the random number generator
+-   `nobs`: number of observations
+-   `beta`: a vector specifying the true values for the regression coefficients ($\beta_0$, $\beta_1$, $\beta_2$, $\beta_3$)
+-   `sigma`: the variance for the model above
+-   `xmeans`: a vector of means used to generate the values for $X_1$, $X_2$, and $X_3$
+-   `xsigs`: a matrix for the covariance for $X_1$, $X_2$, and $X_3$
+
+The function below generates the data for a simulation scenario and returns a list of data (in a list) and the formula to assess the data for the `lm()` function
+
+```{r}
+data_sim <- function(data){ # Simulates the data set
+  df_list <- lapply(1:data$N, data_set_sim,
+                    nobs = data$nobs, beta = data$beta, sigma = data$sigma,
+                    xmeans = data$xmeans, xsigs = data$xsigs)
+  return(list(df_list = df_list, formula = data$formula))
+}
+
+```
+
+The function below takes the data generated from the `data_sim()` and fits a linear regression model. The function wraps around the `lm()` function and returns estimated regression coefficients.
+
+# Parallelization
+
+## Function
+
+The function below process the data and implements the `lm()` to the data. This is the function that will be used in `batchtools`. First, the function obtains the number of data sets it will process. Second, it creates the `lm_coef()` function which applies the `lm()` function to the data[^3]. Third, a parallel processor is applied to go through the data [^4]. Lastly, the results are converted to a matrix and returned as the output.
+
+[^3]: User created functions needs to be created within the function to be loaded in `batchtools`
+
+[^4]: For more information about parallel processing with the `parallel` package, visit [here](parallel_notebook.nb.html)
+
+```{r}
+parallel_lm<-function(data){
+  ll<-length(data$df_list)
+  
+  lm_coef <- function(formula, data){ # Applying a Ordinary Least Squares 
+    lm_res <- lm(formula, data = data) # Find OLS Estimates
+    return(as.vector(coef(lm_res)))# Obtaining 
+  }
+  
+  results <- parallel::mclapply(data$df_list, lm_coef, formula = data$formula, # Applies lm_coef 
+                                mc.cores = 8) # Using the parallel package to parallelize 
+  
+  mat<-matrix(unlist(results), nrow = ll, byrow = T)
+  return(mat)
+}
+```
+
+## Execution
+
+### Modules
+
+Load the slurm module into R.
+
+```{r}
+module('load','slurm')
+```
+
+### Registry
+
+Create a registry and store it in an R object.
+
+```{r}
+reg <- makeRegistry(file.dir="myregdir", conf.file=".batchtools.conf.R")
+```
+
+### Resources
+
+Create a list with the following elements and store it in an R object:
+
+-   `partition`: The cluster partition to use (`"stastdept"`)
+
+-   `walltime`: The time to run the job in seconds (`120`)
+
+-   `ntasks`: The number of tasks to complete (`1`)
+
+-   `ncpus`: The number of cpus to complete the task (`8`)
+
+-   `memory`: How much memory is being used in MB (`1024`)
+
+```{r}
+res <- list(partition="statsdept", walltime=120, ntasks=1, ncpus=8, memory=1024)
+```
+
+### Batch Jobs Prep
+
+Use to `batchMap()` function to create the jobs that need to be submitted into the cluster and store it an R object.
+
+```{r}
+submission_id <- batchMap(parallel_lm, data = standard_data)
+```
+
+### Submitting Jobs
+
+Submit the jobs using the `submitJobs()` and store it in an R object.
+
+```{r}
+done <- submitJobs(submission_id, reg=reg, resources=res)
+```
+
+### Getting Job Status
+
+Use the `getStatus()` function to check on the status of your jobs.
+
+```{r}
+getStatus()
+```
+
+# Results
+
+Once your jobs are completed, you can check the results. First you will need to extract the results from the registry and store it in an R object.
+
+```{r}
+parallel_results <- lapply(1:length(standard_data), loadResult) #obtains the results of each job adds them as an element in a list
+```
+
+Now use the `colMeans()` function to see if the simulation study worked.
+
+```{r}
+lapply(parallel_results, colMeans)
+```
+
+# Notes
+
+## Error: Reached Submission Limit or Resources Limit
+
+If You receive an error about reaching limits, do not worry about it. The slurm system will take care of this. Type the following below to cancel all your jobs and try again.
+
+```{bash}
+squeue --user $USER --noheader --format '%i' | xargs scancel
+```

@@ -12,7 +12,7 @@
 <meta name="author" content="Isaac Quintanilla Salinas" />
 
 
-<title>Parallel Computing in R with parallel</title>
+<title>Parallel Computing in R with batchtools</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -2952,9 +2952,9 @@ div.tocify {
 
 
 
-<h1 class="title toc-ignore">Parallel Computing in R with <code>parallel</code></h1>
+<h1 class="title toc-ignore">Parallel Computing in R with <code>batchtools</code></h1>
 <h4 class="author">Isaac Quintanilla Salinas</h4>
-<h4 class="date">12-19-2020</h4>
+<h4 class="date">12-20-2020</h4>
 
 </div>
 
@@ -2964,88 +2964,143 @@ div.tocify {
 <!-- rnb-text-begin -->
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
-<p>R is designed to only use one cpu (or core) when running tasks. However, a computer may have more than one core that can be used to run tasks. The use of more than one core is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the <code>parallel</code> package and utilizing more cores in a computer.</p>
-<p>For more information about parallel processing in R, visit the following sites:</p>
-<ul>
-<li><a href="https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html">https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html</a></li>
-<li><a href="https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html">https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html</a></li>
-<li><a href="https://psu-psychology.github.io/r-bootcamp-2018/talks/parallel_r.html">https://psu-psychology.github.io/r-bootcamp-2018/talks/parallel_r.html</a></li>
-</ul>
+<p>R is designed to only use one cpu (or core) when running tasks. However, you may have access to a computer cluster<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a> that allows you to access more RAM and cpus. The use of more than one cpu is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the <code>batchtools</code> package and utilizing more cores in a cluster.</p>
+<p>This tutorial is built off the information provided by UCR’s High Performance Computing Center tutorial of <code>batchtools</code> package. This tutorial uses a simulation study to show you the power of <code>batchtools</code>. For more information visit their help documentation for <a href="https://hpcc.ucr.edu/manuals_linux-cluster_parallelR.html">batchtools</a>.</p>
+<p>This tutorial is meant to be run on the <a href="https://hpcc.ucr.edu/">HPCC</a> cluster at UCR. You will need an account to the HPCC cluster. If you are a graduate student in UCR’s <a href="https://statistics.ucr.edu/">Statistics Department</a>, contact the UCR Statistics Graduate Student Association to gain access.</p>
+<p>This tutorial conducts different simulation scenarios to be submitted as jobs. It requires an amount of set up to be effective. There is an an R script that you can use that may provide better insight on using <code>batchtools</code>. You can access R script <a href="batchtools.R">here</a></p>
 </div>
-<div id="background" class="section level1">
-<h1>Background</h1>
-<p>The <code>parallel</code> package allows you to use multiple cpus at the same time to complete repetitive tasks. For example, if you have to run a simulation study with 100 data sets, you can task 4 cpus to analyze 25 data sets at the same time. This ideally will take a forth of the time it will take 1 cpu to complete 100 data sets.</p>
-<p>The only caveaut with using the <code>parallel</code> package is that each process needs to be independent of all processes. If you are running a for loop that depends on the previous iteration, the cpu cannot process the task because it has missing information. Therefore, you will need identify the tasks that are not dependent of one another and parallelize it.</p>
-<p>With the parallel package you can use two family of functions: <code>mc*()</code> and <code>par*()</code> functions. The main difference between these functions is that <code>mc*()</code> uses a forking method to parallelize your code, and the <code>par*()</code> uses a socket method to parallelize your code. Both methods has their strengths and weaknesses. When using the HPCC cluster, I recommend using the <code>mc*()</code> functions when possible. There are brief descriptions for each method below.</p>
-<div id="forking" class="section level2">
-<h2>Forking</h2>
-<p>The forking method is implemented when using the <code>mc*()</code> functions. Below is a list of pros and cons:</p>
-<div id="pros" class="section level3">
-<h3>Pros:</h3>
-<ul>
-<li><p>Easier to implement</p></li>
-<li><p>Your environment is copied to the cpu</p></li>
-<li><p>Has the potential to use less resources</p></li>
-<li><p>Wraps USER function with the <code>try()</code> function</p></li>
-</ul>
+<div id="files-functions-and-packages" class="section level1">
+<h1>Files, Functions and Packages</h1>
+<div id="files" class="section level2">
+<h2>Files</h2>
+<p>Before you begin, download these files to the directory you are working with. The <code>slurm.tmpl</code> file provides information to the slurm scheduler. The <code>.batchtools.conf.R</code> file tells R to create a cluster function for slurm. The period in front of <code>.batchtools.conf.R</code> will hide the file in your directory. It is there, it is just not displayed.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbImRvd25sb2FkLmZpbGUoXCJodHRwczovL2JpdC5seS8zZ1pKQnN5XCIsIFwic2x1cm0udG1wbFwiKSIsImRvd25sb2FkLmZpbGUoXCJodHRwczovL2JpdC5seS8zbnZTTkhBXCIsIFwiLmJhdGNodG9vbHMuY29uZi5SXCIpIl19 -->
+<pre class="r"><code>download.file(&quot;https://bit.ly/3gZJBsy&quot;, &quot;slurm.tmpl&quot;)
+download.file(&quot;https://bit.ly/3nvSNHA&quot;, &quot;.batchtools.conf.R&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 </div>
-<div id="cons" class="section level3">
-<h3>Cons:</h3>
-<ul>
-<li><p>Only works on POSIX systems (Mac or Linux)</p></li>
-<li><p>Does not work with multiple nodes<a href="#fn1" class="footnote-ref" id="fnref1"><sup>1</sup></a></p></li>
-<li><p>May cause cross-contamination because the environment may change<a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a></p></li>
-</ul>
-<p>Generally speaking, R copies its environment to a cpu and runs the process.</p>
+<div id="packages" class="section level2">
+<h2>Packages</h2>
+<p>You will need to use 2 R packages: <code>RenvModule</code> and <code>batchtools</code>. The <code>RenvModule</code><a href="#fn2" class="footnote-ref" id="fnref2"><sup>2</sup></a> package provides the tools to interact with modules in the cluster. The <code>batchtools</code> package provides the tools to parallelize your code. Both are needed. For this tutorial, you will also need to have the <code>mvtrnorm</code> package installed.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbImxpYnJhcnkoUmVudk1vZHVsZSkiLCJsaWJyYXJ5KGJhdGNodG9vbHMpIiwibGlicmFyeShtdnRub3JtKSJdfQ== -->
+<pre class="r"><code>library(RenvModule)
+library(batchtools)
+library(mvtnorm)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
 </div>
+<div id="functions" class="section level2">
+<h2>Functions</h2>
+<div id="module" class="section level3">
+<h3><code>module()</code></h3>
+<p>The <code>module()</code> function loads different modules into the R environment.</p>
 </div>
-<div id="socket" class="section level2">
-<h2>Socket</h2>
-<p>The socket method is implemented when using the <code>par*()</code> functions. Below is a list of pros and cons:</p>
-<div id="pros-1" class="section level3">
-<h3>Pros:</h3>
-<ul>
-<li><p>Works on any system (Windows, Mac, and Linux)</p></li>
-<li><p>Each process is unique</p></li>
-<li><p>No cross-contamination</p></li>
-<li><p>Can be used when multiple nodes are involved</p></li>
-</ul>
+<div id="makeregistry" class="section level3">
+<h3><code>makeRegistry()</code></h3>
+<p>The <code>makeRegistry()</code> function creates a registry for <code>batchtools</code>. You can think of the registry as the communication center for R, your functions, and the cluster. It will store everything in a directory. The <code>makeRegistry()</code> function needs the argument <code>file.dir</code> argument, the location to store the registry, and <code>conf.file=.batchtools.conf.R</code>. Store the output from the function into an R object.</p>
 </div>
-<div id="cons-1" class="section level3">
-<h3>Cons:</h3>
-<ul>
-<li><p>The entire environment (including loaded functions) must be specified</p></li>
-<li><p>More resource intensive</p></li>
-<li><p><code>try()</code> function is not implemented, when one cpu fails, the entire cluster fails</p></li>
-</ul>
-<p>Generally speaking, R creates a new environment on each cpu.</p>
+<div id="batchmap" class="section level3">
+<h3><code>batchMap()</code></h3>
+<p>The <code>batchMap()</code> function creates jobs to be submitted from a cluster. The first argument, <code>fun</code>, is the user-generated function and the additional arguments are for the user-generated function. The <code>batchMap()</code> function will produce a data frame of ids for each job as an output. The job ids are the numeric index of each element in a list/vector.</p>
 </div>
+<div id="submitjobs" class="section level3">
+<h3><code>submitJobs()</code></h3>
+<p>The <code>submitJobs()</code> function will submit jobs to the cluster. It will need output from the <code>batchMap()</code> function as the first argument. Additionally, it will need the location og the registry (<code>reg</code> argument), from a stored R object, and a list of resources (<code>resources</code> argument).</p>
 </div>
-<div id="where-to-parallelize" class="section level2">
-<h2>Where to parallelize?</h2>
-<p>Parallel computing requires repetitive tasks to be independent of each other. The results from one task must not be used as input for another task. Therefore, identify blocks of code where repetition is involved. This can be either <code>for</code> loops or <code>*apply()</code> functions.</p>
-<p>Other locations to parallelize your code are bottlenecks. Having multiple cores processing bottlenecks helps speed up your code. For more information about bottlenecks or code efficiency, visit the Advanced R website: <a href="https://adv-r.hadley.nz/">adv-r.hadley.nz</a>.</p>
-<p>Identifying the location to parallelize may be challenging due to so many options. My advice is to try many things and see what provides the best result.</p>
+<div id="getstatus" class="section level3">
+<h3><code>getStatus()</code></h3>
+<p>The <code>getStatus()</code> function checks the status of your jobs and provides information of each jobs state.</p>
+</div>
+<div id="killjobs" class="section level3">
+<h3><code>killJobs()</code></h3>
+<p>The <code>killJobs()</code> function will kill all your jobs. This is equivalent to <code>scancel</code>.</p>
+</div>
+<div id="loadresult" class="section level3">
+<h3><code>loadResult()</code></h3>
+<p>The <code>loadResult()</code> function will load the results of each job. You will need to specify the id to load the results.</p>
+</div>
+<div id="clearregistry" class="section level3">
+<h3><code>clearRegistry()</code></h3>
+<p>The <code>clearRegistry()</code> function will delete files in the registry to re-submit jobs.</p>
+</div>
+<div id="removeregistry" class="section level3">
+<h3><code>removeRegistry()</code></h3>
+<p>The <code>removeRegistry()</code> function will delete the entire registry.</p>
+</div>
 </div>
 </div>
 <div id="simulation-example" class="section level1">
 <h1>Simulation Example</h1>
-<p>To demonstrate how to use the <code>parallel</code> package in R, we conduct a simple simulation study showing how the estimates from the ordinary least squares estimator leads to unbiased results.</p>
+<p>To demonstrate how to use the <code>batchtools</code> package in R, we conduct several simulation studies showing how the estimates from the ordinary least squares estimator leads to unbiased results. We will simulate data from the following models:</p>
 <p><span class="math display">\[
-Y \sim N(\beta_0+X_1\beta_1+X_4\beta_5+X_3\beta_3,\sigma^2)
+Y \sim N(20+30X,\ 3)
+\]</span> <span class="math display">\[
+Y \sim N(5-8X_1+2X_2,\ 3)
 \]</span></p>
-<div id="simulation-functions" class="section level2">
-<h2>Simulation Functions</h2>
-<p>The function below generates data from the model above and returns a data frame.</p>
+<p><span class="math display">\[
+Y \sim N(5+4X_1-5X_2-3X_3,\ 3)
+\]</span></p>
+<p><span class="math display">\[
+Y \sim N(5+4X_1+-5X_2-3X_3+6X_4,\ 3)
+\]</span> Each simulation scenario with have 500 data sets with 200 observations. The values for the predictor variables will be simulated by multivariate normal distributions. The mean vector for the predictors simulation are <span class="math inline">\((-2, 0)^T\)</span>, <span class="math inline">\((-2, 0)^T\)</span>, <span class="math inline">\((-2, 0, 2)^T\)</span>, <span class="math inline">\((-2, 0, 2 8)^T\)</span>. Each covariance for the predictor simulation will be an identity matrix.</p>
+<div id="simulation-parameters" class="section level2">
+<h2>Simulation Parameters</h2>
+<p>The simulation parameters will be stored in a list. Each element in the list will contain information of the about the simulation and the formula for the <code>lm()</code> function.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImRhdGFfc2ltIDwtIGZ1bmN0aW9uKHNlZWQsIG5vYnMsIGJldGEsIHNpZ21hLCB4bWVhbnMsIHhzaWdzKXsiLCIgIHNldC5zZWVkKHNlZWQpIiwiICB4cm4gPC0gcm12bm9ybShub2JzLCBtZWFuID0geG1lYW5zLCBzaWdtYSA9IHhzaWdzKSIsIiAgeHBlZCA8LSBjYmluZChyZXAoMSxub2JzKSx4cm4pIiwiICB5IDwtIHhwZWQgJSolIGJldGEgKyBybm9ybShub2JzICwwLCBzaWdtYSkiLCIgIGRmIDwtIGRhdGEuZnJhbWUoeD14cm4sIHk9eSkiLCIgIHJldHVybihkZikiLCJ9Il19 -->
-<pre class="r"><code>data_sim &lt;- function(seed, nobs, beta, sigma, xmeans, xsigs){
-  set.seed(seed)
-  xrn &lt;- rmvnorm(nobs, mean = xmeans, sigma = xsigs)
-  xped &lt;- cbind(rep(1,nobs),xrn)
-  y &lt;- xped %*% beta + rnorm(nobs ,0, sigma)
-  df &lt;- data.frame(x=xrn, y=y)
+<!-- rnb-source-begin eyJkYXRhIjpbInNpbV9saXN0IDwtIGxpc3QobGlzdChOID0gNTAwLCAjIE51bWJlciBvZiBEYXRhIHNldHMiLCIgICAgICAgICAgICAgICAgICAgICAgbm9icyA9IDIwMCwgIyBOdW1iZXIgb2Ygb2JzZXJ2YXRpb25zIiwiICAgICAgICAgICAgICAgICAgICAgIGJldGEgPSBjKDIwLCAzMCksICMgYmV0YSBwYXJhbWV0ZXJzIiwiICAgICAgICAgICAgICAgICAgICAgIHhtZWFucyA9IGMoMCksICMgTWVhbnMgZm9yIHByZWRpY3RvcnMiLCIgICAgICAgICAgICAgICAgICAgICAgeHNpZ3MgPSBkaWFnKHJlcCgxLCAxKSksICMgVmFyaWFuY2UgZm9yIHByZWRpY3RvciIsIiAgICAgICAgICAgICAgICAgICAgICBzaWdtYSA9IDMsICMgVmFyaWFuY2UgZm9yIGVycm9yIHRlcm0iLCIgICAgICAgICAgICAgICAgICAgICAgZm9ybXVsYSA9IHkgfiB4KSwgI0Zvcm11bGEiLCIgICAgICAgICAgICAgICAgIGxpc3QoTiA9IDUwMCwgIyBOdW1iZXIgb2YgRGF0YSBzZXRzIiwiICAgICAgICAgICAgICAgICAgICAgIG5vYnMgPSAyMDAsICMgTnVtYmVyIG9mIG9ic2VydmF0aW9ucyIsIiAgICAgICAgICAgICAgICAgICAgICBiZXRhID0gYyg1LCAtOCwgMiksICMgYmV0YSBwYXJhbWV0ZXJzIiwiICAgICAgICAgICAgICAgICAgICAgIHhtZWFucyA9IGMoLTIsIDApLCAjIE1lYW5zIGZvciBwcmVkaWN0b3JzIiwiICAgICAgICAgICAgICAgICAgICAgIHhzaWdzID0gZGlhZyhyZXAoMSwgMikpLCAjIFZhcmlhbmNlIGZvciBwcmVkaWN0b3IiLCIgICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSAzLCAjIFZhcmlhbmNlIGZvciBlcnJvciB0ZXJtIiwiICAgICAgICAgICAgICAgICAgICAgIGZvcm11bGEgPSB5IH4geC4xICsgeC4yKSwgI0Zvcm11bGEiLCIgICAgICAgICAgICAgICAgIGxpc3QoTiA9IDUwMCwgIyBOdW1iZXIgb2YgRGF0YSBzZXRzIiwiICAgICAgICAgICAgICAgICAgICAgIG5vYnMgPSAyMDAsICMgTnVtYmVyIG9mIG9ic2VydmF0aW9ucyIsIiAgICAgICAgICAgICAgICAgICAgICBiZXRhID0gYyg1LCA0LCAtNSwgLTMpLCAjIGJldGEgcGFyYW1ldGVycyIsIiAgICAgICAgICAgICAgICAgICAgICB4bWVhbnMgPSBjKC0yLCAwLCAyKSwgIyBNZWFucyBmb3IgcHJlZGljdG9ycyIsIiAgICAgICAgICAgICAgICAgICAgICB4c2lncyA9IGRpYWcocmVwKDEsIDMpKSwgIyBWYXJpYW5jZSBmb3IgcHJlZGljdG9yIiwiICAgICAgICAgICAgICAgICAgICAgIHNpZ21hID0gMywgIyBWYXJpYW5jZSBmb3IgZXJyb3IgdGVybSIsIiAgICAgICAgICAgICAgICAgICAgICBmb3JtdWxhID0geSB+IHguMSArIHguMiArIHguMyksICAjRm9ybXVsYSIsIiAgICAgICAgICAgICAgICAgbGlzdChOID0gNTAwLCAjIE51bWJlciBvZiBEYXRhIHNldHMiLCIgICAgICAgICAgICAgICAgICAgICAgbm9icyA9IDIwMCwgIyBOdW1iZXIgb2Ygb2JzZXJ2YXRpb25zIiwiICAgICAgICAgICAgICAgICAgICAgIGJldGEgPSBjKDUsIDQsIC01LCAtMywgNiksICMgYmV0YSBwYXJhbWV0ZXJzIiwiICAgICAgICAgICAgICAgICAgICAgIHhtZWFucyA9IGMoLTIsIDAsIDIsIDgpLCAjIE1lYW5zIGZvciBwcmVkaWN0b3JzIiwiICAgICAgICAgICAgICAgICAgICAgIHhzaWdzID0gZGlhZyhyZXAoMSwgNCkpLCAjIFZhcmlhbmNlIGZvciBwcmVkaWN0b3IiLCIgICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSAzLCAjIFZhcmlhbmNlIGZvciBlcnJvciB0ZXJtIiwiICAgICAgICAgICAgICAgICAgICAgIGZvcm11bGEgPSB5IH4geC4xICsgeC4yICsgeC4zICsgeC40KSAjRm9ybXVsYSIsIikiXX0= -->
+<pre class="r"><code>sim_list &lt;- list(list(N = 500, # Number of Data sets
+                      nobs = 200, # Number of observations
+                      beta = c(20, 30), # beta parameters
+                      xmeans = c(0), # Means for predictors
+                      xsigs = diag(rep(1, 1)), # Variance for predictor
+                      sigma = 3, # Variance for error term
+                      formula = y ~ x), #Formula
+                 list(N = 500, # Number of Data sets
+                      nobs = 200, # Number of observations
+                      beta = c(5, -8, 2), # beta parameters
+                      xmeans = c(-2, 0), # Means for predictors
+                      xsigs = diag(rep(1, 2)), # Variance for predictor
+                      sigma = 3, # Variance for error term
+                      formula = y ~ x.1 + x.2), #Formula
+                 list(N = 500, # Number of Data sets
+                      nobs = 200, # Number of observations
+                      beta = c(5, 4, -5, -3), # beta parameters
+                      xmeans = c(-2, 0, 2), # Means for predictors
+                      xsigs = diag(rep(1, 3)), # Variance for predictor
+                      sigma = 3, # Variance for error term
+                      formula = y ~ x.1 + x.2 + x.3),  #Formula
+                 list(N = 500, # Number of Data sets
+                      nobs = 200, # Number of observations
+                      beta = c(5, 4, -5, -3, 6), # beta parameters
+                      xmeans = c(-2, 0, 2, 8), # Means for predictors
+                      xsigs = diag(rep(1, 4)), # Variance for predictor
+                      sigma = 3, # Variance for error term
+                      formula = y ~ x.1 + x.2 + x.3 + x.4) #Formula
+)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="simulation-functions" class="section level2">
+<h2>Simulation Functions</h2>
+<p>The function below generates 1 data set from a simulation scenario above and returns a data frame.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjpbImRhdGFfc2V0X3NpbSA8LSBmdW5jdGlvbihzZWVkLCBub2JzLCBiZXRhLCBzaWdtYSwgeG1lYW5zLCB4c2lncyl7ICMgU2ltdWxhdGVzIHRoZSBkYXRhIHNldCIsIiAgc2V0LnNlZWQoc2VlZCkgIyBTZXRzIGEgc2VlZCIsIiAgeHJuIDwtIHJtdm5vcm0obm9icywgbWVhbiA9IHhtZWFucywgc2lnbWEgPSB4c2lncykgIyBTaW11bGF0ZXMgUHJlZGljdG9ycyIsIiAgeHBlZCA8LSBjYmluZChyZXAoMSxub2JzKSx4cm4pICMgQ3JlYXRpbmcgRGVzaWduIE1hdHJpeCIsIiAgeSA8LSB4cGVkICUqJSBiZXRhICsgcm5vcm0obm9icyAsMCwgc2lnbWEpICMgU2ltdWxhdGluZyBZIiwiICBkZiA8LSBkYXRhLmZyYW1lKHg9eHJuLCB5PXkpICMgQ3JlYXRpbmcgRGF0YSBGcmFtZSIsIiAgcmV0dXJuKGRmKSIsIn0iXX0= -->
+<pre class="r"><code>data_set_sim &lt;- function(seed, nobs, beta, sigma, xmeans, xsigs){ # Simulates the data set
+  set.seed(seed) # Sets a seed
+  xrn &lt;- rmvnorm(nobs, mean = xmeans, sigma = xsigs) # Simulates Predictors
+  xped &lt;- cbind(rep(1,nobs),xrn) # Creating Design Matrix
+  y &lt;- xped %*% beta + rnorm(nobs ,0, sigma) # Simulating Y
+  df &lt;- data.frame(x=xrn, y=y) # Creating Data Frame
   return(df)
 }</code></pre>
 <!-- rnb-source-end -->
@@ -3060,140 +3115,119 @@ Y \sim N(\beta_0+X_1\beta_1+X_4\beta_5+X_3\beta_3,\sigma^2)
 <li><code>xmeans</code>: a vector of means used to generate the values for <span class="math inline">\(X_1\)</span>, <span class="math inline">\(X_2\)</span>, and <span class="math inline">\(X_3\)</span></li>
 <li><code>xsigs</code>: a matrix for the covariance for <span class="math inline">\(X_1\)</span>, <span class="math inline">\(X_2\)</span>, and <span class="math inline">\(X_3\)</span></li>
 </ul>
-<p>The function below takes the data generated from the <code>data_sim()</code> and fits a linear regression model. The function wraps around the <code>lm()</code> function and returns estimated regression coefficients.</p>
+<p>The function below generates the data for a simulation scenario and returns a list of data (in a list) and the formula to assess the data for the <code>lm()</code> function</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbInBhcmFsbGVsX2xtIDwtIGZ1bmN0aW9uKGRhdGEpeyIsIiAgbG1fcmVzIDwtIGxtKHkgfiB4LjEgKyB4LjIgKyB4LjMsIGRhdGEgPSBkYXRhKSIsIiAgcmV0dXJuKGNvZWYobG1fcmVzKSkiLCJ9Il19 -->
-<pre class="r"><code>parallel_lm &lt;- function(data){
-  lm_res &lt;- lm(y ~ x.1 + x.2 + x.3, data = data)
-  return(coef(lm_res))
+<!-- rnb-source-begin eyJkYXRhIjpbImRhdGFfc2ltIDwtIGZ1bmN0aW9uKGRhdGEpeyAjIFNpbXVsYXRlcyB0aGUgZGF0YSBzZXQiLCIgIGRmX2xpc3QgPC0gbGFwcGx5KDE6ZGF0YSROLCBkYXRhX3NldF9zaW0sIiwiICAgICAgICAgICAgICAgICAgICBub2JzID0gZGF0YSRub2JzLCBiZXRhID0gZGF0YSRiZXRhLCBzaWdtYSA9IGRhdGEkc2lnbWEsIiwiICAgICAgICAgICAgICAgICAgICB4bWVhbnMgPSBkYXRhJHhtZWFucywgeHNpZ3MgPSBkYXRhJHhzaWdzKSIsIiAgcmV0dXJuKGxpc3QoZGZfbGlzdCA9IGRmX2xpc3QsIGZvcm11bGEgPSBkYXRhJGZvcm11bGEpKSIsIn0iXX0= -->
+<pre class="r"><code>data_sim &lt;- function(data){ # Simulates the data set
+  df_list &lt;- lapply(1:data$N, data_set_sim,
+                    nobs = data$nobs, beta = data$beta, sigma = data$sigma,
+                    xmeans = data$xmeans, xsigs = data$xsigs)
+  return(list(df_list = df_list, formula = data$formula))
 }</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<div id="loading-r-packages" class="section level3">
-<h3>Loading R Packages</h3>
-<p>For this tutorial, you will need the <code>parallel</code> and <code>mvtnorm</code> packages.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImxpYnJhcnkocGFyYWxsZWwpIiwibGlicmFyeShtdnRub3JtKSJdfQ== -->
-<pre class="r"><code>library(parallel)
-library(mvtnorm)</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="setting-parameters" class="section level3">
-<h3>Setting Parameters</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbIk4gPC0gMTAwMDAiLCJub2JzIDwtIDIwMCIsImJldGEgPC0gYyg1LCA0LCAtNSwgLTMpIiwieG1lYW5zIDwtIGMoLTIsIDAsIDIpIiwieHNpZ3MgPC1kaWFnKHJlcCgxLCAzKSkiLCJzaWcgPC0gMyJdfQ== -->
-<pre class="r"><code>N &lt;- 10000
-nobs &lt;- 200
-beta &lt;- c(5, 4, -5, -3)
-xmeans &lt;- c(-2, 0, 2)
-xsigs &lt;-diag(rep(1, 3))
-sig &lt;- 3</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="simulating-data" class="section level3">
-<h3>Simulating Data</h3>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbInN0YXJ0IDwtIFN5cy50aW1lKCkiLCJwYXJhbGxlbF9kYXRhIDwtIGxhcHBseShjKDE6TiksIGRhdGFfc2ltLCIsIiAgICAgICAgICAgICAgICAgICAgICAgICAgbm9icyA9IG5vYnMsIGJldGEgPSBiZXRhLCBzaWdtYSA9IHNpZywgeG1lYW5zID0geG1lYW5zLCB4c2lncyA9IHhzaWdzKSIsIlN5cy50aW1lKCktc3RhcnQiXX0= -->
-<pre class="r"><code>start &lt;- Sys.time()
-parallel_data &lt;- lapply(c(1:N), data_sim,
-                          nobs = nobs, beta = beta, sigma = sig, xmeans = xmeans, xsigs = xsigs)
-Sys.time()-start</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
+<p>The function below takes the data generated from the <code>data_sim()</code> and fits a linear regression model. The function wraps around the <code>lm()</code> function and returns estimated regression coefficients.</p>
 </div>
 </div>
 <div id="parallelization" class="section level1">
 <h1>Parallelization</h1>
-<div id="detecting-cores" class="section level2">
-<h2>Detecting Cores</h2>
-<p>The <code>parallel</code> package has a function that can detect the number of cores available on your computer. Use the <code>detectCores()</code> function to find how many cpus your computer has<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>.</p>
+<div id="function" class="section level2">
+<h2>Function</h2>
+<p>The function below process the data and implements the <code>lm()</code> to the data. This is the function that will be used in <code>batchtools</code>. First, the function obtains the number of data sets it will process. Second, it creates the <code>lm_coef()</code> function which applies the <code>lm()</code> function to the data<a href="#fn3" class="footnote-ref" id="fnref3"><sup>3</sup></a>. Third, a parallel processor is applied to go through the data <a href="#fn4" class="footnote-ref" id="fnref4"><sup>4</sup></a>. Lastly, the results are converted to a matrix and returned as the output.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoiZGV0ZWN0Q29yZXMoKSJ9 -->
-<pre class="r"><code>detectCores()</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-<p>For this example, I will use 8 cpus. You can change the number of cpus based on your computer.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjoibmNvcmVzIDwtIDgifQ== -->
-<pre class="r"><code>ncores &lt;- 8</code></pre>
-<!-- rnb-source-end -->
-<!-- rnb-chunk-end -->
-<!-- rnb-text-begin -->
-</div>
-<div id="using-lapply" class="section level2">
-<h2>Using <code>lapply()</code></h2>
-<p>Before we parallelize, use the <code>lapply()</code> function to run the simulation on one cpu.</p>
-<!-- rnb-text-end -->
-<!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbInN0YXJ0IDwtIFN5cy50aW1lKCkiLCJsYXBwbHlfcmVzdWx0cyA8LSBsYXBwbHkocGFyYWxsZWxfZGF0YSwgcGFyYWxsZWxfbG0pIiwiKGxhcHBseV90aW1lIDwtIFN5cy50aW1lKCktc3RhcnQpIl19 -->
-<pre class="r"><code>start &lt;- Sys.time()
-lapply_results &lt;- lapply(parallel_data, parallel_lm)
-(lapply_time &lt;- Sys.time()-start)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjpbInBhcmFsbGVsX2xtPC1mdW5jdGlvbihkYXRhKXsiLCIgIGxsPC1sZW5ndGgoZGF0YSRkZl9saXN0KSIsIiAgIiwiICBsbV9jb2VmIDwtIGZ1bmN0aW9uKGZvcm11bGEsIGRhdGEpeyAjIEFwcGx5aW5nIGEgT3JkaW5hcnkgTGVhc3QgU3F1YXJlcyAiLCIgICAgbG1fcmVzIDwtIGxtKGZvcm11bGEsIGRhdGEgPSBkYXRhKSAjIEZpbmQgT0xTIEVzdGltYXRlcyIsIiAgICByZXR1cm4oYXMudmVjdG9yKGNvZWYobG1fcmVzKSkpIyBPYnRhaW5pbmcgIiwiICB9IiwiICAiLCIgIHJlc3VsdHMgPC0gcGFyYWxsZWw6Om1jbGFwcGx5KGRhdGEkZGZfbGlzdCwgbG1fY29lZiwgZm9ybXVsYSA9IGRhdGEkZm9ybXVsYSwgIyBBcHBsaWVzIGxtX2NvZWYgIiwiICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICBtYy5jb3JlcyA9IDgpICMgVXNpbmcgdGhlIHBhcmFsbGVsIHBhY2thZ2UgdG8gcGFyYWxsZWxpemUgIiwiICAiLCIgIG1hdDwtbWF0cml4KHVubGlzdChyZXN1bHRzKSwgbnJvdyA9IGxsLCBieXJvdyA9IFQpIiwiICByZXR1cm4obWF0KSIsIn0iXX0= -->
+<pre class="r"><code>parallel_lm&lt;-function(data){
+  ll&lt;-length(data$df_list)
+  
+  lm_coef &lt;- function(formula, data){ # Applying a Ordinary Least Squares 
+    lm_res &lt;- lm(formula, data = data) # Find OLS Estimates
+    return(as.vector(coef(lm_res)))# Obtaining 
+  }
+  
+  results &lt;- parallel::mclapply(data$df_list, lm_coef, formula = data$formula, # Applies lm_coef 
+                                mc.cores = 8) # Using the parallel package to parallelize 
+  
+  mat&lt;-matrix(unlist(results), nrow = ll, byrow = T)
+  return(mat)
+}</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="using-mclapply" class="section level2">
-<h2>Using <code>mclapply()</code></h2>
-<p>The easiest way to parallelize is to use the <code>mclapply()</code> function. All you need to do is change the <code>lapply()</code> function to <code>mclapply()</code> and add the argument <code>mc.cores =  ncores</code> as the last argument. The argument <code>mc.cores</code> specifies the number of cores for parallelization.</p>
+<div id="execution" class="section level2">
+<h2>Execution</h2>
+<div id="modules" class="section level3">
+<h3>Modules</h3>
+<p>Load the slurm module into R.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbInN0YXJ0IDwtIFN5cy50aW1lKCkiLCJtY2xhcHBseV9yZXN1bHRzIDwtIG1jbGFwcGx5KHBhcmFsbGVsX2RhdGEsIHBhcmFsbGVsX2xtLCBtYy5jb3JlcyA9IG5jb3JlcykiLCIobWNsYXBwbHlfdGltZSA8LSBTeXMudGltZSgpLXN0YXJ0KSJdfQ== -->
-<pre class="r"><code>start &lt;- Sys.time()
-mclapply_results &lt;- mclapply(parallel_data, parallel_lm, mc.cores = ncores)
-(mclapply_time &lt;- Sys.time()-start)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoibW9kdWxlKCdsb2FkJywnc2x1cm0nKSJ9 -->
+<pre class="r"><code>module(&#39;load&#39;,&#39;slurm&#39;)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
-<div id="using-parlapply" class="section level2">
-<h2>Using <code>parLapply()</code></h2>
-<div id="functions" class="section level3">
-<h3>Functions</h3>
-<p>Using <code>parLapply()</code> function requires setting up the cluster. There are two functions needed to set up the cluster: <code>makeCluster()</code> and <code>clusterExport()</code>. Once your analysis is finished, you will need to close the cluster using the <code>stopCluster()</code> function.</p>
-<div id="makecluster" class="section level4">
-<h4><code>makeCluster()</code></h4>
-<p>The <code>makeCluster()</code> function sets up the cluster in your computer. You only need to specify the number of cores to use (<code>ncores</code>) and store it in an R object (<code>cl</code>)</p>
-</div>
-<div id="clusterexport" class="section level4">
-<h4><code>clusterExport()</code></h4>
-<p>The <code>clusterExport()</code> function is needed to export user-created functions, package functions, or data to the cluster. You will need to specify the cluster (<code>cl</code>) to export the information and the name of the functions or data in a character vector.</p>
-</div>
-<div id="parlapply" class="section level4">
-<h4><code>parLapply()</code></h4>
-<p>The <code>parLapply()</code> is the parallel computing component. It is used the same way as the <code>lapply()</code> function. The only difference is that you will need to specify the cluster (<code>cl</code>) as the first argument. The second argument goes as the <code>lapply()</code> function.</p>
-</div>
-<div id="stopcluster" class="section level4">
-<h4><code>stopCluster()</code></h4>
-<p>The <code>stopCluster()</code> function closes the cluster down.</p>
-</div>
-</div>
-<div id="implementation" class="section level3">
-<h3>Implementation</h3>
-<p>The code below implements the <code>parLapply()</code> function:</p>
+<div id="registry" class="section level3">
+<h3>Registry</h3>
+<p>Create a registry and store it in an R object.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbInN0YXJ0IDwtIFN5cy50aW1lKCkiLCJjbCA8LSBtYWtlQ2x1c3RlcihuY29yZXMpIiwiY2x1c3RlckV4cG9ydChjbCwgYyhcInBhcmFsbGVsX2xtXCIpKSIsInBhckxhcHBseV9yZXN1bHRzPC1wYXJMYXBwbHkoY2wscGFyYWxsZWxfZGF0YSxwYXJhbGxlbF9sbSkiLCJzdG9wQ2x1c3RlcihjbCkiLCIocGFyTGFwcGx5X3RpbWUgPC0gU3lzLnRpbWUoKS1zdGFydCkiXX0= -->
-<pre class="r"><code>start &lt;- Sys.time()
-cl &lt;- makeCluster(ncores)
-clusterExport(cl, c(&quot;parallel_lm&quot;))
-parLapply_results&lt;-parLapply(cl,parallel_data,parallel_lm)
-stopCluster(cl)
-(parLapply_time &lt;- Sys.time()-start)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoicmVnIDwtIG1ha2VSZWdpc3RyeShmaWxlLmRpcj1cIm15cmVnZGlyXCIsIGNvbmYuZmlsZT1cIi5iYXRjaHRvb2xzLmNvbmYuUlwiKSJ9 -->
+<pre class="r"><code>reg &lt;- makeRegistry(file.dir=&quot;myregdir&quot;, conf.file=&quot;.batchtools.conf.R&quot;)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="resources" class="section level3">
+<h3>Resources</h3>
+<p>Create a list with the following elements and store it in an R object:</p>
+<ul>
+<li><p><code>partition</code>: The cluster partition to use (<code>&quot;stastdept&quot;</code>)</p></li>
+<li><p><code>walltime</code>: The time to run the job in seconds (<code>120</code>)</p></li>
+<li><p><code>ntasks</code>: The number of tasks to complete (<code>1</code>)</p></li>
+<li><p><code>ncpus</code>: The number of cpus to complete the task (<code>8</code>)</p></li>
+<li><p><code>memory</code>: How much memory is being used in MB (<code>1024</code>)</p></li>
+</ul>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoicmVzIDwtIGxpc3QocGFydGl0aW9uPVwic3RhdHNkZXB0XCIsIHdhbGx0aW1lPTEyMCwgbnRhc2tzPTEsIG5jcHVzPTgsIG1lbW9yeT0xMDI0KSJ9 -->
+<pre class="r"><code>res &lt;- list(partition=&quot;statsdept&quot;, walltime=120, ntasks=1, ncpus=8, memory=1024)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="batch-jobs-prep" class="section level3">
+<h3>Batch Jobs Prep</h3>
+<p>Use to <code>batchMap()</code> function to create the jobs that need to be submitted into the cluster and store it an R object.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoic3VibWlzc2lvbl9pZCA8LSBiYXRjaE1hcChwYXJhbGxlbF9sbSwgZGF0YSA9IHN0YW5kYXJkX2RhdGEpIn0= -->
+<pre class="r"><code>submission_id &lt;- batchMap(parallel_lm, data = standard_data)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="submitting-jobs" class="section level3">
+<h3>Submitting Jobs</h3>
+<p>Submit the jobs using the <code>submitJobs()</code> and store it in an R object.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiZG9uZSA8LSBzdWJtaXRKb2JzKHN1Ym1pc3Npb25faWQsIHJlZz1yZWcsIHJlc291cmNlcz1yZXMpIn0= -->
+<pre class="r"><code>done &lt;- submitJobs(submission_id, reg=reg, resources=res)</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
+<!-- rnb-text-begin -->
+</div>
+<div id="getting-job-status" class="section level3">
+<h3>Getting Job Status</h3>
+<p>Use the <code>getStatus()</code> function to check on the status of your jobs.</p>
+<!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoiZ2V0U3RhdHVzKCkifQ== -->
+<pre class="r"><code>getStatus()</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
@@ -3202,49 +3236,47 @@ stopCluster(cl)
 </div>
 <div id="results" class="section level1">
 <h1>Results</h1>
-<p>Since all the results are in a list, we will first convert them into a matrix:</p>
+<p>Once your jobs are completed, you can check the results. First you will need to extract the results from the registry and store it in an R object.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbImxhcHBseV9tYXQgPC0gbWF0cml4KHVubGlzdChsYXBwbHlfcmVzdWx0cyksIG5yb3cgPSA0KSIsIm1jbGFwcGx5X21hdCA8LSBtYXRyaXgodW5saXN0KG1jbGFwcGx5X3Jlc3VsdHMpLCBucm93ID0gNCkiLCJwYXJMYXBwbHlfbWF0IDwtIG1hdHJpeCh1bmxpc3QocGFyTGFwcGx5X3Jlc3VsdHMpLCBucm93ID0gNCkiXX0= -->
-<pre class="r"><code>lapply_mat &lt;- matrix(unlist(lapply_results), nrow = 4)
-mclapply_mat &lt;- matrix(unlist(mclapply_results), nrow = 4)
-parLapply_mat &lt;- matrix(unlist(parLapply_results), nrow = 4)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoicGFyYWxsZWxfcmVzdWx0cyA8LSBsYXBwbHkoMTpsZW5ndGgoc3RhbmRhcmRfZGF0YSksIGxvYWRSZXN1bHQpICNvYnRhaW5zIHRoZSByZXN1bHRzIG9mIGVhY2ggam9iIGFkZHMgdGhlbSBhcyBhbiBlbGVtZW50IGluIGEgbGlzdCJ9 -->
+<pre class="r"><code>parallel_results &lt;- lapply(1:length(standard_data), loadResult) #obtains the results of each job adds them as an element in a list</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
-<p>Use the <code>rowMeans()</code> on all objects to show each method provides consistent estimates of the regression parameters.</p>
+<p>Now use the <code>colMeans()</code> function to see if the simulation study worked.</p>
 <!-- rnb-text-end -->
 <!-- rnb-chunk-begin -->
-<!-- rnb-source-begin eyJkYXRhIjpbInJvd01lYW5zKGxhcHBseV9tYXQpIiwicm93TWVhbnMobWNsYXBwbHlfbWF0KSIsInJvd01lYW5zKHBhckxhcHBseV9tYXQpIl19 -->
-<pre class="r"><code>rowMeans(lapply_mat)
-rowMeans(mclapply_mat)
-rowMeans(parLapply_mat)</code></pre>
+<!-- rnb-source-begin eyJkYXRhIjoibGFwcGx5KHBhcmFsbGVsX3Jlc3VsdHMsIGNvbE1lYW5zKSJ9 -->
+<pre class="r"><code>lapply(parallel_results, colMeans)</code></pre>
 <!-- rnb-source-end -->
 <!-- rnb-chunk-end -->
 <!-- rnb-text-begin -->
 </div>
 <div id="notes" class="section level1">
 <h1>Notes</h1>
-<div id="speed-gains" class="section level2">
-<h2>Speed Gains</h2>
-<p>When parallelizing your code, the speed gains may not be noticeable. When using the <code>parallel</code> package, R assigns elements of a list or vector into different cores, known as overhead, which takes time. The time it takes to load the data may be longer than processing the data. Therefore, it may not be faster or take longer than using the <code>*apply()</code> functions. It may be best to use one core or split up the data on your own. However, when processing your data takes much longer than your overhead time, the speed gains are noticeable.</p>
-</div>
-<div id="hyper-threading" class="section level2">
-<h2>Hyper-threading</h2>
-<p>Certain computer processors have cores that are multi-threaded (hyper-threading). This means the computer views 1 physical core as 2 logical cores. While you certainly specify double the number of physical cores for your cluster, the speed gains is not equivalent as using proper physical cores. In my experience, it is not worth using the logical cores and just specify the number of physical cores in your computer.</p>
+<div id="error-reached-submission-limit-or-resources-limit" class="section level2">
+<h2>Error: Reached Submission Limit or Resources Limit</h2>
+<p>If You receive an error about reaching limits, do not worry about it. The slurm system will take care of this. Type the following below to cancel all your jobs and try again.</p>
 <!-- rnb-text-end -->
+<!-- rnb-chunk-begin -->
+<!-- rnb-source-begin eyJkYXRhIjoic3F1ZXVlIC0tdXNlciAkVVNFUiAtLW5vaGVhZGVyIC0tZm9ybWF0ICclaScgfCB4YXJncyBzY2FuY2VsIn0= -->
+<pre class="r"><code>squeue --user $USER --noheader --format &#39;%i&#39; | xargs scancel</code></pre>
+<!-- rnb-source-end -->
+<!-- rnb-chunk-end -->
 </div>
 </div>
 <div class="footnotes">
 <hr />
 <ol>
-<li id="fn1"><p>You can think of as nodes as the processor. Each processor has a set number of cpus, if you need more cpus, you will need to use another node.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
-<li id="fn2"><p>Mostly occurs with random number generation; however, this is generally not a problem.<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
-<li id="fn3"><p>The function provides the number of logical cores and not physical cores. This is due to multithreading.<a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn1"><p>The cluster has a scheduling system implemented.<a href="#fnref1" class="footnote-back">↩︎</a></p></li>
+<li id="fn2"><p>Fun Fact: This package is from HPCC<a href="#fnref2" class="footnote-back">↩︎</a></p></li>
+<li id="fn3"><p>User created functions needs to be created within the function to be loaded in <code>batchtools</code><a href="#fnref3" class="footnote-back">↩︎</a></p></li>
+<li id="fn4"><p>For more information about parallel processing with the <code>parallel</code> package, visit <a href="parallel_notebook.nb.html">here</a><a href="#fnref4" class="footnote-back">↩︎</a></p></li>
 </ol>
 </div>
 
-<div id="rmd-source-code">LS0tCnRpdGxlOiAiUGFyYWxsZWwgQ29tcHV0aW5nIGluIFIgd2l0aCBgcGFyYWxsZWxgIgphdXRob3I6ICJJc2FhYyBRdWludGFuaWxsYSBTYWxpbmFzIgpkZXNjcmlwdGlvbjogVHV0b3JpYWwgZm9yIHBhcmFsbGVsIHByb2Nlc3NpbmcgdXNpbmcgdGhlIFIgcGFja2FnZSBwYXJhbGxlbC4KZGF0ZTogImByIGZvcm1hdChTeXMudGltZSgpLCclbS0lZC0lWScpYCIKb3V0cHV0OiAKICBodG1sX25vdGVib29rOgogICAgdG9jOiB0cnVlCiAgICB0b2NfZmxvYXQ6IHRydWUKLS0tCgpgYGB7ciBzZXR1cCwgaW5jbHVkZT1GQUxTRX0Ka25pdHI6Om9wdHNfY2h1bmskc2V0KGVjaG8gPSBUUlVFKQprbml0cjo6b3B0c19jaHVuayRzZXQoY2FjaGUgPSBUUlVFKQpgYGAKCiMgSW50cm9kdWN0aW9uCgpSIGlzIGRlc2lnbmVkIHRvIG9ubHkgdXNlIG9uZSBjcHUgKG9yIGNvcmUpIHdoZW4gcnVubmluZyB0YXNrcy4gSG93ZXZlciwgYSBjb21wdXRlciBtYXkgaGF2ZSBtb3JlIHRoYW4gb25lIGNvcmUgdGhhdCBjYW4gYmUgdXNlZCB0byBydW4gdGFza3MuIFRoZSB1c2Ugb2YgbW9yZSB0aGFuIG9uZSBjb3JlIGlzIGtub3duIGFzIHBhcmFsbGVsIGNvbXB1dGluZyBpbiBSLiBUaGUgZ29hbCBvZiB0aGlzIHR1dG9yaWFsIGlzIHRvIHByb3ZpZGUgdGhlIGJhc2ljcyBvZiB1c2luZyB0aGUgYHBhcmFsbGVsYCBwYWNrYWdlIGFuZCB1dGlsaXppbmcgbW9yZSBjb3JlcyBpbiBhIGNvbXB1dGVyLgoKRm9yIG1vcmUgaW5mb3JtYXRpb24gYWJvdXQgcGFyYWxsZWwgcHJvY2Vzc2luZyBpbiBSLCB2aXNpdCB0aGUgZm9sbG93aW5nIHNpdGVzOgoKIC0gW2h0dHBzOi8vbmNlYXMuZ2l0aHViLmlvL29zcy1sZXNzb25zL3BhcmFsbGVsLWNvbXB1dGluZy1pbi1yL3BhcmFsbGVsLWNvbXB1dGluZy1pbi1yLmh0bWxdKGh0dHBzOi8vbmNlYXMuZ2l0aHViLmlvL29zcy1sZXNzb25zL3BhcmFsbGVsLWNvbXB1dGluZy1pbi1yL3BhcmFsbGVsLWNvbXB1dGluZy1pbi1yLmh0bWwpCiAtIFtodHRwczovL2RlcHQuc3RhdC5sc2EudW1pY2guZWR1L35qZXJyaWNrL2NvdXJzZXMvc3RhdDcwMS9ub3Rlcy9wYXJhbGxlbC5odG1sXShodHRwczovL2RlcHQuc3RhdC5sc2EudW1pY2guZWR1L35qZXJyaWNrL2NvdXJzZXMvc3RhdDcwMS9ub3Rlcy9wYXJhbGxlbC5odG1sKQogLSBbaHR0cHM6Ly9wc3UtcHN5Y2hvbG9neS5naXRodWIuaW8vci1ib290Y2FtcC0yMDE4L3RhbGtzL3BhcmFsbGVsX3IuaHRtbF0oaHR0cHM6Ly9wc3UtcHN5Y2hvbG9neS5naXRodWIuaW8vci1ib290Y2FtcC0yMDE4L3RhbGtzL3BhcmFsbGVsX3IuaHRtbCkKCiMgQmFja2dyb3VuZCAKClRoZSBgcGFyYWxsZWxgIHBhY2thZ2UgYWxsb3dzIHlvdSB0byB1c2UgbXVsdGlwbGUgY3B1cyBhdCB0aGUgc2FtZSB0aW1lIHRvIGNvbXBsZXRlIHJlcGV0aXRpdmUgdGFza3MuIEZvciBleGFtcGxlLCBpZiB5b3UgaGF2ZSB0byBydW4gYSBzaW11bGF0aW9uIHN0dWR5IHdpdGggMTAwIGRhdGEgc2V0cywgeW91IGNhbiB0YXNrIDQgY3B1cyB0byBhbmFseXplIDI1IGRhdGEgc2V0cyBhdCB0aGUgc2FtZSB0aW1lLiBUaGlzIGlkZWFsbHkgd2lsbCB0YWtlIGEgZm9ydGggb2YgdGhlIHRpbWUgaXQgd2lsbCB0YWtlIDEgY3B1IHRvIGNvbXBsZXRlIDEwMCBkYXRhIHNldHMuCgpUaGUgb25seSBjYXZlYXV0IHdpdGggdXNpbmcgdGhlIGBwYXJhbGxlbGAgcGFja2FnZSBpcyB0aGF0IGVhY2ggcHJvY2VzcyBuZWVkcyB0byBiZSBpbmRlcGVuZGVudCBvZiBhbGwgcHJvY2Vzc2VzLiBJZiB5b3UgYXJlIHJ1bm5pbmcgYSBmb3IgbG9vcCB0aGF0IGRlcGVuZHMgb24gdGhlIHByZXZpb3VzIGl0ZXJhdGlvbiwgdGhlIGNwdSBjYW5ub3QgcHJvY2VzcyB0aGUgdGFzayBiZWNhdXNlIGl0IGhhcyBtaXNzaW5nIGluZm9ybWF0aW9uLiBUaGVyZWZvcmUsIHlvdSB3aWxsIG5lZWQgaWRlbnRpZnkgdGhlIHRhc2tzIHRoYXQgYXJlIG5vdCBkZXBlbmRlbnQgb2Ygb25lIGFub3RoZXIgYW5kIHBhcmFsbGVsaXplIGl0LgoKV2l0aCB0aGUgcGFyYWxsZWwgcGFja2FnZSB5b3UgY2FuIHVzZSB0d28gZmFtaWx5IG9mIGZ1bmN0aW9uczogYG1jKigpYCBhbmQgYHBhciooKWAgZnVuY3Rpb25zLiBUaGUgbWFpbiBkaWZmZXJlbmNlIGJldHdlZW4gdGhlc2UgZnVuY3Rpb25zIGlzIHRoYXQgYG1jKigpYCB1c2VzIGEgZm9ya2luZyBtZXRob2QgdG8gcGFyYWxsZWxpemUgeW91ciBjb2RlLCBhbmQgdGhlIGBwYXIqKClgIHVzZXMgYSBzb2NrZXQgbWV0aG9kIHRvIHBhcmFsbGVsaXplIHlvdXIgY29kZS4gQm90aCBtZXRob2RzIGhhcyB0aGVpciBzdHJlbmd0aHMgYW5kIHdlYWtuZXNzZXMuIFdoZW4gdXNpbmcgdGhlIEhQQ0MgY2x1c3RlciwgSSByZWNvbW1lbmQgdXNpbmcgdGhlIGBtYyooKWAgZnVuY3Rpb25zIHdoZW4gcG9zc2libGUuIFRoZXJlIGFyZSBicmllZiBkZXNjcmlwdGlvbnMgZm9yIGVhY2ggbWV0aG9kIGJlbG93LgoKIyMgRm9ya2luZwoKVGhlIGZvcmtpbmcgbWV0aG9kIGlzIGltcGxlbWVudGVkIHdoZW4gdXNpbmcgdGhlIGBtYyooKWAgZnVuY3Rpb25zLiBCZWxvdyBpcyBhIGxpc3Qgb2YgcHJvcyBhbmQgY29uczoKCiMjIyBQcm9zOgoKLSBFYXNpZXIgdG8gaW1wbGVtZW50CgotIFlvdXIgZW52aXJvbm1lbnQgaXMgY29waWVkIHRvIHRoZSBjcHUKCi0gSGFzIHRoZSBwb3RlbnRpYWwgdG8gdXNlIGxlc3MgcmVzb3VyY2VzCgotIFdyYXBzIFVTRVIgZnVuY3Rpb24gd2l0aCB0aGUgYHRyeSgpYCBmdW5jdGlvbgoKIyMjIENvbnM6CgotIE9ubHkgd29ya3Mgb24gUE9TSVggc3lzdGVtcyAoTWFjIG9yIExpbnV4KQoKLSBEb2VzIG5vdCB3b3JrIHdpdGggbXVsdGlwbGUgbm9kZXNeW1lvdSBjYW4gdGhpbmsgb2YgYXMgbm9kZXMgYXMgdGhlIHByb2Nlc3Nvci4gRWFjaCBwcm9jZXNzb3IgaGFzIGEgc2V0IG51bWJlciBvZiBjcHVzLCBpZiB5b3UgbmVlZCBtb3JlIGNwdXMsIHlvdSB3aWxsIG5lZWQgdG8gdXNlIGFub3RoZXIgbm9kZS5dCgotIE1heSBjYXVzZSBjcm9zcy1jb250YW1pbmF0aW9uIGJlY2F1c2UgdGhlIGVudmlyb25tZW50IG1heSBjaGFuZ2VeW01vc3RseSBvY2N1cnMgd2l0aCByYW5kb20gbnVtYmVyIGdlbmVyYXRpb247IGhvd2V2ZXIsIHRoaXMgaXMgZ2VuZXJhbGx5IG5vdCBhIHByb2JsZW0uXQoKR2VuZXJhbGx5IHNwZWFraW5nLCBSIGNvcGllcyBpdHMgZW52aXJvbm1lbnQgdG8gYSBjcHUgYW5kIHJ1bnMgdGhlIHByb2Nlc3MuCgoKIyMgU29ja2V0CgpUaGUgc29ja2V0IG1ldGhvZCBpcyBpbXBsZW1lbnRlZCB3aGVuIHVzaW5nIHRoZSBgcGFyKigpYCBmdW5jdGlvbnMuIEJlbG93IGlzIGEgbGlzdCBvZiBwcm9zIGFuZCBjb25zOgoKIyMjIFByb3M6CgotIFdvcmtzIG9uIGFueSBzeXN0ZW0gKFdpbmRvd3MsIE1hYywgYW5kIExpbnV4KQoKLSBFYWNoIHByb2Nlc3MgaXMgdW5pcXVlCgotIE5vIGNyb3NzLWNvbnRhbWluYXRpb24KCi0gQ2FuIGJlIHVzZWQgd2hlbiBtdWx0aXBsZSBub2RlcyBhcmUgaW52b2x2ZWQKCiMjIyBDb25zOgoKLSBUaGUgZW50aXJlIGVudmlyb25tZW50IChpbmNsdWRpbmcgbG9hZGVkIGZ1bmN0aW9ucykgbXVzdCBiZSBzcGVjaWZpZWQKCi0gTW9yZSByZXNvdXJjZSBpbnRlbnNpdmUKCi0gYHRyeSgpYCBmdW5jdGlvbiBpcyBub3QgaW1wbGVtZW50ZWQsIHdoZW4gb25lIGNwdSBmYWlscywgdGhlIGVudGlyZSBjbHVzdGVyIGZhaWxzCgpHZW5lcmFsbHkgc3BlYWtpbmcsIFIgY3JlYXRlcyBhIG5ldyBlbnZpcm9ubWVudCBvbiBlYWNoIGNwdS4KCiMjIFdoZXJlIHRvIHBhcmFsbGVsaXplPwoKUGFyYWxsZWwgY29tcHV0aW5nIHJlcXVpcmVzIHJlcGV0aXRpdmUgdGFza3MgdG8gYmUgaW5kZXBlbmRlbnQgb2YgZWFjaCBvdGhlci4gVGhlIHJlc3VsdHMgZnJvbSBvbmUgdGFzayBtdXN0IG5vdCBiZSB1c2VkIGFzIGlucHV0IGZvciBhbm90aGVyIHRhc2suIFRoZXJlZm9yZSwgaWRlbnRpZnkgYmxvY2tzIG9mIGNvZGUgd2hlcmUgcmVwZXRpdGlvbiBpcyBpbnZvbHZlZC4gVGhpcyBjYW4gYmUgZWl0aGVyIGBmb3JgIGxvb3BzIG9yIGAqYXBwbHkoKWAgZnVuY3Rpb25zLiAKCk90aGVyIGxvY2F0aW9ucyB0byBwYXJhbGxlbGl6ZSB5b3VyIGNvZGUgYXJlIGJvdHRsZW5lY2tzLiBIYXZpbmcgbXVsdGlwbGUgY29yZXMgcHJvY2Vzc2luZyBib3R0bGVuZWNrcyBoZWxwcyBzcGVlZCB1cCB5b3VyIGNvZGUuIEZvciBtb3JlIGluZm9ybWF0aW9uIGFib3V0IGJvdHRsZW5lY2tzIG9yIGNvZGUgZWZmaWNpZW5jeSwgdmlzaXQgdGhlIEFkdmFuY2VkIFIgd2Vic2l0ZTogW2Fkdi1yLmhhZGxleS5uel0oaHR0cHM6Ly9hZHYtci5oYWRsZXkubnovKS4KCklkZW50aWZ5aW5nIHRoZSBsb2NhdGlvbiB0byBwYXJhbGxlbGl6ZSBtYXkgYmUgY2hhbGxlbmdpbmcgZHVlIHRvIHNvIG1hbnkgb3B0aW9ucy4gTXkgYWR2aWNlIGlzIHRvIHRyeSBtYW55IHRoaW5ncyBhbmQgc2VlIHdoYXQgcHJvdmlkZXMgdGhlIGJlc3QgcmVzdWx0LgoKIyBTaW11bGF0aW9uIEV4YW1wbGUKClRvIGRlbW9uc3RyYXRlIGhvdyB0byB1c2UgdGhlIGBwYXJhbGxlbGAgcGFja2FnZSBpbiBSLCB3ZSBjb25kdWN0IGEgc2ltcGxlIHNpbXVsYXRpb24gc3R1ZHkgc2hvd2luZyBob3cgdGhlIGVzdGltYXRlcyBmcm9tIHRoZSBvcmRpbmFyeSBsZWFzdCBzcXVhcmVzIGVzdGltYXRvciBsZWFkcyB0byB1bmJpYXNlZCByZXN1bHRzLiAKCiQkClkgXHNpbSBOKFxiZXRhXzArWF8xXGJldGFfMStYXzRcYmV0YV81K1hfM1xiZXRhXzMsXHNpZ21hXjIpCiQkCgoKIyMgU2ltdWxhdGlvbiBGdW5jdGlvbnMKClRoZSBmdW5jdGlvbiBiZWxvdyBnZW5lcmF0ZXMgZGF0YSBmcm9tIHRoZSBtb2RlbCBhYm92ZSBhbmQgcmV0dXJucyBhIGRhdGEgZnJhbWUuIAoKYGBge3J9CmRhdGFfc2ltIDwtIGZ1bmN0aW9uKHNlZWQsIG5vYnMsIGJldGEsIHNpZ21hLCB4bWVhbnMsIHhzaWdzKXsKICBzZXQuc2VlZChzZWVkKQogIHhybiA8LSBybXZub3JtKG5vYnMsIG1lYW4gPSB4bWVhbnMsIHNpZ21hID0geHNpZ3MpCiAgeHBlZCA8LSBjYmluZChyZXAoMSxub2JzKSx4cm4pCiAgeSA8LSB4cGVkICUqJSBiZXRhICsgcm5vcm0obm9icyAsMCwgc2lnbWEpCiAgZGYgPC0gZGF0YS5mcmFtZSh4PXhybiwgeT15KQogIHJldHVybihkZikKfQpgYGAKClRoZSBmdW5jdGlvbiBuZWVkcyB0aGUgZm9sbG93aW5nIGFyZ3VtZW50czoKCiAtIGBzZWVkYDogdGhlIHZhbHVlIHRvIHNldCBmb3IgdGhlIHJhbmRvbSBudW1iZXIgZ2VuZXJhdG9yCiAtIGBub2JzYDogbnVtYmVyIG9mIG9ic2VydmF0aW9ucwogLSBgYmV0YWA6IGEgdmVjdG9yIHNwZWNpZnlpbmcgdGhlIHRydWUgdmFsdWVzIGZvciB0aGUgcmVncmVzc2lvbiBjb2VmZmljaWVudHMgKCRcYmV0YV8wJCwgJFxiZXRhXzEkLCAkXGJldGFfMiQsICRcYmV0YV8zJCkKIC0gYHNpZ21hYDogdGhlIHZhcmlhbmNlIGZvciB0aGUgbW9kZWwgYWJvdmUKIC0gYHhtZWFuc2A6IGEgdmVjdG9yIG9mIG1lYW5zIHVzZWQgdG8gZ2VuZXJhdGUgdGhlIHZhbHVlcyBmb3IgJFhfMSQsICRYXzIkLCBhbmQgJFhfMyQKIC0gYHhzaWdzYDogYSBtYXRyaXggZm9yIHRoZSBjb3ZhcmlhbmNlIGZvciAkWF8xJCwgJFhfMiQsIGFuZCAkWF8zJAoKVGhlIGZ1bmN0aW9uIGJlbG93IHRha2VzIHRoZSBkYXRhIGdlbmVyYXRlZCBmcm9tIHRoZSBgZGF0YV9zaW0oKWAgYW5kIGZpdHMgYSBsaW5lYXIgcmVncmVzc2lvbiBtb2RlbC4gVGhlIGZ1bmN0aW9uIHdyYXBzIGFyb3VuZCB0aGUgYGxtKClgIGZ1bmN0aW9uIGFuZCByZXR1cm5zIGVzdGltYXRlZCByZWdyZXNzaW9uIGNvZWZmaWNpZW50cy4gICAKCmBgYHtyfQpwYXJhbGxlbF9sbSA8LSBmdW5jdGlvbihkYXRhKXsKICBsbV9yZXMgPC0gbG0oeSB+IHguMSArIHguMiArIHguMywgZGF0YSA9IGRhdGEpCiAgcmV0dXJuKGNvZWYobG1fcmVzKSkKfQpgYGAKCiMjIyBMb2FkaW5nIFIgUGFja2FnZXMKCkZvciB0aGlzIHR1dG9yaWFsLCB5b3Ugd2lsbCBuZWVkIHRoZSBgcGFyYWxsZWxgIGFuZCBgbXZ0bm9ybWAgcGFja2FnZXMuCgpgYGB7cn0KbGlicmFyeShwYXJhbGxlbCkKbGlicmFyeShtdnRub3JtKQpgYGAKCgoKIyMjIFNldHRpbmcgUGFyYW1ldGVycwoKYGBge3J9Ck4gPC0gMTAwMDAKbm9icyA8LSAyMDAKYmV0YSA8LSBjKDUsIDQsIC01LCAtMykKeG1lYW5zIDwtIGMoLTIsIDAsIDIpCnhzaWdzIDwtZGlhZyhyZXAoMSwgMykpCnNpZyA8LSAzCmBgYAoKIyMjIFNpbXVsYXRpbmcgRGF0YQoKYGBge3J9CnN0YXJ0IDwtIFN5cy50aW1lKCkKcGFyYWxsZWxfZGF0YSA8LSBsYXBwbHkoYygxOk4pLCBkYXRhX3NpbSwKICAgICAgICAgICAgICAgICAgICAgICAgICBub2JzID0gbm9icywgYmV0YSA9IGJldGEsIHNpZ21hID0gc2lnLCB4bWVhbnMgPSB4bWVhbnMsIHhzaWdzID0geHNpZ3MpClN5cy50aW1lKCktc3RhcnQKYGBgCgojIFBhcmFsbGVsaXphdGlvbgoKIyMgRGV0ZWN0aW5nIENvcmVzCgpUaGUgYHBhcmFsbGVsYCBwYWNrYWdlIGhhcyBhIGZ1bmN0aW9uIHRoYXQgY2FuIGRldGVjdCB0aGUgbnVtYmVyIG9mIGNvcmVzIGF2YWlsYWJsZSBvbiB5b3VyIGNvbXB1dGVyLiBVc2UgdGhlIGBkZXRlY3RDb3JlcygpYCBmdW5jdGlvbiB0byBmaW5kIGhvdyBtYW55IGNwdXMgeW91ciBjb21wdXRlciBoYXNeW1RoZSBmdW5jdGlvbiBwcm92aWRlcyB0aGUgbnVtYmVyIG9mIGxvZ2ljYWwgY29yZXMgYW5kIG5vdCBwaHlzaWNhbCBjb3Jlcy4gVGhpcyBpcyBkdWUgdG8gbXVsdGl0aHJlYWRpbmcuXS4KCmBgYHtyfQpkZXRlY3RDb3JlcygpCmBgYAoKRm9yIHRoaXMgZXhhbXBsZSwgSSB3aWxsIHVzZSA4IGNwdXMuIFlvdSBjYW4gY2hhbmdlIHRoZSBudW1iZXIgb2YgY3B1cyBiYXNlZCBvbiB5b3VyIGNvbXB1dGVyLiAKCmBgYHtyfQpuY29yZXMgPC0gOApgYGAKCiMjIFVzaW5nIGBsYXBwbHkoKWAKCkJlZm9yZSB3ZSBwYXJhbGxlbGl6ZSwgdXNlIHRoZSBgbGFwcGx5KClgIGZ1bmN0aW9uIHRvIHJ1biB0aGUgc2ltdWxhdGlvbiBvbiBvbmUgY3B1LgoKYGBge3J9CnN0YXJ0IDwtIFN5cy50aW1lKCkKbGFwcGx5X3Jlc3VsdHMgPC0gbGFwcGx5KHBhcmFsbGVsX2RhdGEsIHBhcmFsbGVsX2xtKQoobGFwcGx5X3RpbWUgPC0gU3lzLnRpbWUoKS1zdGFydCkKYGBgCgojIyBVc2luZyBgbWNsYXBwbHkoKWAKClRoZSBlYXNpZXN0IHdheSB0byBwYXJhbGxlbGl6ZSBpcyB0byB1c2UgdGhlIGBtY2xhcHBseSgpYCBmdW5jdGlvbi4gQWxsIHlvdSBuZWVkIHRvIGRvIGlzIGNoYW5nZSB0aGUgYGxhcHBseSgpYCBmdW5jdGlvbiB0byBgbWNsYXBwbHkoKWAgYW5kIGFkZCB0aGUgYXJndW1lbnQgYG1jLmNvcmVzID0gIG5jb3Jlc2AgYXMgdGhlIGxhc3QgYXJndW1lbnQuIFRoZSBhcmd1bWVudCBgbWMuY29yZXNgIHNwZWNpZmllcyB0aGUgbnVtYmVyIG9mIGNvcmVzIGZvciBwYXJhbGxlbGl6YXRpb24uCgpgYGB7cn0Kc3RhcnQgPC0gU3lzLnRpbWUoKQptY2xhcHBseV9yZXN1bHRzIDwtIG1jbGFwcGx5KHBhcmFsbGVsX2RhdGEsIHBhcmFsbGVsX2xtLCBtYy5jb3JlcyA9IG5jb3JlcykKKG1jbGFwcGx5X3RpbWUgPC0gU3lzLnRpbWUoKS1zdGFydCkKYGBgCgojIyBVc2luZyBgcGFyTGFwcGx5KClgCgojIyMgRnVuY3Rpb25zCgpVc2luZyBgcGFyTGFwcGx5KClgIGZ1bmN0aW9uIHJlcXVpcmVzIHNldHRpbmcgdXAgdGhlIGNsdXN0ZXIuIFRoZXJlIGFyZSB0d28gZnVuY3Rpb25zIG5lZWRlZCB0byBzZXQgdXAgdGhlIGNsdXN0ZXI6IGBtYWtlQ2x1c3RlcigpYCBhbmQgYGNsdXN0ZXJFeHBvcnQoKWAuIE9uY2UgeW91ciBhbmFseXNpcyBpcyBmaW5pc2hlZCwgeW91IHdpbGwgbmVlZCB0byBjbG9zZSB0aGUgY2x1c3RlciB1c2luZyB0aGUgYHN0b3BDbHVzdGVyKClgIGZ1bmN0aW9uLiAKCgojIyMjIGBtYWtlQ2x1c3RlcigpYAoKVGhlIGBtYWtlQ2x1c3RlcigpYCBmdW5jdGlvbiBzZXRzIHVwIHRoZSBjbHVzdGVyIGluIHlvdXIgY29tcHV0ZXIuIFlvdSBvbmx5IG5lZWQgdG8gc3BlY2lmeSB0aGUgbnVtYmVyIG9mIGNvcmVzIHRvIHVzZSAoYG5jb3Jlc2ApIGFuZCBzdG9yZSBpdCBpbiBhbiBSIG9iamVjdCAoYGNsYCkgCgoKIyMjIyBgY2x1c3RlckV4cG9ydCgpYAoKVGhlIGBjbHVzdGVyRXhwb3J0KClgIGZ1bmN0aW9uIGlzIG5lZWRlZCB0byBleHBvcnQgdXNlci1jcmVhdGVkIGZ1bmN0aW9ucywgcGFja2FnZSBmdW5jdGlvbnMsIG9yIGRhdGEgdG8gdGhlIGNsdXN0ZXIuCllvdSB3aWxsIG5lZWQgdG8gc3BlY2lmeSB0aGUgY2x1c3RlciAoYGNsYCkgdG8gZXhwb3J0IHRoZSBpbmZvcm1hdGlvbiBhbmQgdGhlIG5hbWUgb2YgdGhlIGZ1bmN0aW9ucyBvciBkYXRhIGluIGEgY2hhcmFjdGVyIHZlY3Rvci4gCgoKIyMjIyBgcGFyTGFwcGx5KClgCgpUaGUgYHBhckxhcHBseSgpYCBpcyB0aGUgcGFyYWxsZWwgY29tcHV0aW5nIGNvbXBvbmVudC4gSXQgaXMgdXNlZCB0aGUgc2FtZSB3YXkgYXMgdGhlIGBsYXBwbHkoKWAgZnVuY3Rpb24uIFRoZSBvbmx5IGRpZmZlcmVuY2UgaXMgdGhhdCB5b3Ugd2lsbCBuZWVkIHRvIHNwZWNpZnkgdGhlIGNsdXN0ZXIgKGBjbGApIGFzIHRoZSBmaXJzdCBhcmd1bWVudC4gVGhlIHNlY29uZCBhcmd1bWVudCBnb2VzIGFzIHRoZSBgbGFwcGx5KClgIGZ1bmN0aW9uLgoKCiMjIyMgYHN0b3BDbHVzdGVyKClgCgpUaGUgYHN0b3BDbHVzdGVyKClgIGZ1bmN0aW9uIGNsb3NlcyB0aGUgY2x1c3RlciBkb3duLgoKCiMjIyBJbXBsZW1lbnRhdGlvbgoKVGhlIGNvZGUgYmVsb3cgaW1wbGVtZW50cyB0aGUgYHBhckxhcHBseSgpYCBmdW5jdGlvbjoKCmBgYHtyfQpzdGFydCA8LSBTeXMudGltZSgpCmNsIDwtIG1ha2VDbHVzdGVyKG5jb3JlcykKY2x1c3RlckV4cG9ydChjbCwgYygicGFyYWxsZWxfbG0iKSkKcGFyTGFwcGx5X3Jlc3VsdHM8LXBhckxhcHBseShjbCxwYXJhbGxlbF9kYXRhLHBhcmFsbGVsX2xtKQpzdG9wQ2x1c3RlcihjbCkKKHBhckxhcHBseV90aW1lIDwtIFN5cy50aW1lKCktc3RhcnQpCmBgYAoKIyBSZXN1bHRzCgpTaW5jZSBhbGwgdGhlIHJlc3VsdHMgYXJlIGluIGEgbGlzdCwgd2Ugd2lsbCBmaXJzdCBjb252ZXJ0IHRoZW0gaW50byBhIG1hdHJpeDoKCmBgYHtyfQpsYXBwbHlfbWF0IDwtIG1hdHJpeCh1bmxpc3QobGFwcGx5X3Jlc3VsdHMpLCBucm93ID0gNCkKbWNsYXBwbHlfbWF0IDwtIG1hdHJpeCh1bmxpc3QobWNsYXBwbHlfcmVzdWx0cyksIG5yb3cgPSA0KQpwYXJMYXBwbHlfbWF0IDwtIG1hdHJpeCh1bmxpc3QocGFyTGFwcGx5X3Jlc3VsdHMpLCBucm93ID0gNCkKYGBgCgpVc2UgdGhlIGByb3dNZWFucygpYCBvbiBhbGwgb2JqZWN0cyB0byBzaG93IGVhY2ggbWV0aG9kIHByb3ZpZGVzIGNvbnNpc3RlbnQgZXN0aW1hdGVzIG9mIHRoZSByZWdyZXNzaW9uIHBhcmFtZXRlcnMuCgpgYGB7cn0Kcm93TWVhbnMobGFwcGx5X21hdCkKcm93TWVhbnMobWNsYXBwbHlfbWF0KQpyb3dNZWFucyhwYXJMYXBwbHlfbWF0KQpgYGAKCgojIE5vdGVzCgojIyBTcGVlZCBHYWlucwoKV2hlbiBwYXJhbGxlbGl6aW5nIHlvdXIgY29kZSwgdGhlIHNwZWVkIGdhaW5zIG1heSBub3QgYmUgbm90aWNlYWJsZS4gV2hlbiB1c2luZyB0aGUgYHBhcmFsbGVsYCBwYWNrYWdlLCBSIGFzc2lnbnMgZWxlbWVudHMgb2YgYSBsaXN0IG9yIHZlY3RvciBpbnRvIGRpZmZlcmVudCBjb3Jlcywga25vd24gYXMgb3ZlcmhlYWQsIHdoaWNoIHRha2VzIHRpbWUuIFRoZSB0aW1lIGl0IHRha2VzIHRvIGxvYWQgdGhlIGRhdGEgbWF5IGJlIGxvbmdlciB0aGFuIHByb2Nlc3NpbmcgdGhlIGRhdGEuIFRoZXJlZm9yZSwgaXQgbWF5IG5vdCBiZSBmYXN0ZXIgb3IgdGFrZSBsb25nZXIgdGhhbiB1c2luZyB0aGUgYCphcHBseSgpYCBmdW5jdGlvbnMuICBJdCBtYXkgYmUgYmVzdCB0byB1c2Ugb25lIGNvcmUgb3Igc3BsaXQgdXAgdGhlIGRhdGEgb24geW91ciBvd24uIEhvd2V2ZXIsIHdoZW4gcHJvY2Vzc2luZyB5b3VyIGRhdGEgdGFrZXMgbXVjaCBsb25nZXIgdGhhbiB5b3VyIG92ZXJoZWFkIHRpbWUsIHRoZSBzcGVlZCBnYWlucyBhcmUgbm90aWNlYWJsZS4KCiMjIEh5cGVyLXRocmVhZGluZwoKQ2VydGFpbiBjb21wdXRlciBwcm9jZXNzb3JzIGhhdmUgY29yZXMgdGhhdCBhcmUgbXVsdGktdGhyZWFkZWQgKGh5cGVyLXRocmVhZGluZykuIFRoaXMgbWVhbnMgdGhlIGNvbXB1dGVyIHZpZXdzIDEgcGh5c2ljYWwgY29yZSBhcyAyIGxvZ2ljYWwgY29yZXMuIFdoaWxlIHlvdSBjZXJ0YWlubHkgc3BlY2lmeSBkb3VibGUgdGhlIG51bWJlciBvZiBwaHlzaWNhbCBjb3JlcyBmb3IgeW91ciBjbHVzdGVyLCB0aGUgc3BlZWQgZ2FpbnMgaXMgbm90IGVxdWl2YWxlbnQgYXMgdXNpbmcgcHJvcGVyIHBoeXNpY2FsIGNvcmVzLiBJbiBteSBleHBlcmllbmNlLCBpdCBpcyBub3Qgd29ydGggdXNpbmcgdGhlIGxvZ2ljYWwgY29yZXMgYW5kIGp1c3Qgc3BlY2lmeSB0aGUgbnVtYmVyIG9mIHBoeXNpY2FsIGNvcmVzIGluIHlvdXIgY29tcHV0ZXIuIAoK</div>
+<div id="rmd-source-code">LS0tCnRpdGxlOiAiUGFyYWxsZWwgQ29tcHV0aW5nIGluIFIgd2l0aCBgYmF0Y2h0b29sc2AiCmF1dGhvcjogIklzYWFjIFF1aW50YW5pbGxhIFNhbGluYXMiCmRlc2NyaXB0aW9uOiBUdXRvcmlhbCBmb3IgcGFyYWxsZWwgcHJvY2Vzc2luZyB1c2luZyB0aGUgUiBwYWNrYWdlIGJhdGNodG9vbHMuCmRhdGU6ICJgciBmb3JtYXQoU3lzLnRpbWUoKSwnJW0tJWQtJVknKWAiCm91dHB1dDogCiAgaHRtbF9ub3RlYm9vazoKICAgIHRvYzogdHJ1ZQogICAgdG9jX2Zsb2F0OiB0cnVlCi0tLQoKYGBge3Igc2V0dXAsIGluY2x1ZGU9RkFMU0V9CmtuaXRyOjpvcHRzX2NodW5rJHNldChldmFsID0gRkFMU0UpCmBgYAoKIyBJbnRyb2R1Y3Rpb24KClIgaXMgZGVzaWduZWQgdG8gb25seSB1c2Ugb25lIGNwdSAob3IgY29yZSkgd2hlbiBydW5uaW5nIHRhc2tzLiBIb3dldmVyLCB5b3UgbWF5IGhhdmUgYWNjZXNzIHRvIGEgY29tcHV0ZXIgY2x1c3RlclteMV0gdGhhdCBhbGxvd3MgeW91IHRvIGFjY2VzcyBtb3JlIFJBTSBhbmQgY3B1cy4gVGhlIHVzZSBvZiBtb3JlIHRoYW4gb25lIGNwdSBpcyBrbm93biBhcyBwYXJhbGxlbCBjb21wdXRpbmcgaW4gUi4gVGhlIGdvYWwgb2YgdGhpcyB0dXRvcmlhbCBpcyB0byBwcm92aWRlIHRoZSBiYXNpY3Mgb2YgdXNpbmcgdGhlIGBiYXRjaHRvb2xzYCBwYWNrYWdlIGFuZCB1dGlsaXppbmcgbW9yZSBjb3JlcyBpbiBhIGNsdXN0ZXIuCgpbXjFdOiBUaGUgY2x1c3RlciBoYXMgYSBzY2hlZHVsaW5nIHN5c3RlbSBpbXBsZW1lbnRlZC4KClRoaXMgdHV0b3JpYWwgaXMgYnVpbHQgb2ZmIHRoZSBpbmZvcm1hdGlvbiBwcm92aWRlZCBieSBVQ1IncyBIaWdoIFBlcmZvcm1hbmNlIENvbXB1dGluZyBDZW50ZXIgdHV0b3JpYWwgb2YgYGJhdGNodG9vbHNgIHBhY2thZ2UuIFRoaXMgdHV0b3JpYWwgdXNlcyBhIHNpbXVsYXRpb24gc3R1ZHkgdG8gc2hvdyB5b3UgdGhlIHBvd2VyIG9mIGBiYXRjaHRvb2xzYC4gRm9yIG1vcmUgaW5mb3JtYXRpb24gdmlzaXQgdGhlaXIgaGVscCBkb2N1bWVudGF0aW9uIGZvciBbYmF0Y2h0b29sc10oaHR0cHM6Ly9ocGNjLnVjci5lZHUvbWFudWFsc19saW51eC1jbHVzdGVyX3BhcmFsbGVsUi5odG1sKS4KClRoaXMgdHV0b3JpYWwgaXMgbWVhbnQgdG8gYmUgcnVuIG9uIHRoZSBbSFBDQ10oaHR0cHM6Ly9ocGNjLnVjci5lZHUvKSBjbHVzdGVyIGF0IFVDUi4gWW91IHdpbGwgbmVlZCBhbiBhY2NvdW50IHRvIHRoZSBIUENDIGNsdXN0ZXIuIElmIHlvdSBhcmUgYSBncmFkdWF0ZSBzdHVkZW50IGluIFVDUidzIFtTdGF0aXN0aWNzIERlcGFydG1lbnRdKGh0dHBzOi8vc3RhdGlzdGljcy51Y3IuZWR1LyksIGNvbnRhY3QgdGhlIFVDUiBTdGF0aXN0aWNzIEdyYWR1YXRlIFN0dWRlbnQgQXNzb2NpYXRpb24gdG8gZ2FpbiBhY2Nlc3MuCgpUaGlzIHR1dG9yaWFsIGNvbmR1Y3RzIGRpZmZlcmVudCBzaW11bGF0aW9uIHNjZW5hcmlvcyB0byBiZSBzdWJtaXR0ZWQgYXMgam9icy4gSXQgcmVxdWlyZXMgYW4gYW1vdW50IG9mIHNldCB1cCB0byBiZSBlZmZlY3RpdmUuIFRoZXJlIGlzIGFuIGFuIFIgc2NyaXB0IHRoYXQgeW91IGNhbiB1c2UgdGhhdCBtYXkgcHJvdmlkZSBiZXR0ZXIgaW5zaWdodCBvbiB1c2luZyBgYmF0Y2h0b29sc2AuIFlvdSBjYW4gYWNjZXNzIFIgc2NyaXB0IFtoZXJlXShiYXRjaHRvb2xzLlIpCgojIEZpbGVzLCBGdW5jdGlvbnMgYW5kIFBhY2thZ2VzCgojIyBGaWxlcwoKQmVmb3JlIHlvdSBiZWdpbiwgZG93bmxvYWQgdGhlc2UgZmlsZXMgdG8gdGhlIGRpcmVjdG9yeSB5b3UgYXJlIHdvcmtpbmcgd2l0aC4gVGhlIGBzbHVybS50bXBsYCBmaWxlIHByb3ZpZGVzIGluZm9ybWF0aW9uIHRvIHRoZSBzbHVybSBzY2hlZHVsZXIuIFRoZSBgLmJhdGNodG9vbHMuY29uZi5SYCBmaWxlIHRlbGxzIFIgdG8gY3JlYXRlIGEgY2x1c3RlciBmdW5jdGlvbiBmb3Igc2x1cm0uIFRoZSBwZXJpb2QgaW4gZnJvbnQgb2YgYC5iYXRjaHRvb2xzLmNvbmYuUmAgd2lsbCBoaWRlIHRoZSBmaWxlIGluIHlvdXIgZGlyZWN0b3J5LiBJdCBpcyB0aGVyZSwgaXQgaXMganVzdCBub3QgZGlzcGxheWVkLgoKYGBge3J9CmRvd25sb2FkLmZpbGUoImh0dHBzOi8vYml0Lmx5LzNnWkpCc3kiLCAic2x1cm0udG1wbCIpCmRvd25sb2FkLmZpbGUoImh0dHBzOi8vYml0Lmx5LzNudlNOSEEiLCAiLmJhdGNodG9vbHMuY29uZi5SIikKYGBgCgojIyBQYWNrYWdlcwoKWW91IHdpbGwgbmVlZCB0byB1c2UgMiBSIHBhY2thZ2VzOiBgUmVudk1vZHVsZWAgYW5kIGBiYXRjaHRvb2xzYC4gVGhlIGBSZW52TW9kdWxlYFteMl0gcGFja2FnZSBwcm92aWRlcyB0aGUgdG9vbHMgdG8gaW50ZXJhY3Qgd2l0aCBtb2R1bGVzIGluIHRoZSBjbHVzdGVyLiBUaGUgYGJhdGNodG9vbHNgIHBhY2thZ2UgcHJvdmlkZXMgdGhlIHRvb2xzIHRvIHBhcmFsbGVsaXplIHlvdXIgY29kZS4gQm90aCBhcmUgbmVlZGVkLiBGb3IgdGhpcyB0dXRvcmlhbCwgeW91IHdpbGwgYWxzbyBuZWVkIHRvIGhhdmUgdGhlIGBtdnRybm9ybWAgcGFja2FnZSBpbnN0YWxsZWQuCgpbXjJdOiBGdW4gRmFjdDogVGhpcyBwYWNrYWdlIGlzIGZyb20gSFBDQwoKYGBge3J9CmxpYnJhcnkoUmVudk1vZHVsZSkKbGlicmFyeShiYXRjaHRvb2xzKQpsaWJyYXJ5KG12dG5vcm0pCmBgYAoKIyMgRnVuY3Rpb25zCgojIyMgYG1vZHVsZSgpYAoKVGhlIGBtb2R1bGUoKWAgZnVuY3Rpb24gbG9hZHMgZGlmZmVyZW50IG1vZHVsZXMgaW50byB0aGUgUiBlbnZpcm9ubWVudC4KCiMjIyBgbWFrZVJlZ2lzdHJ5KClgCgpUaGUgYG1ha2VSZWdpc3RyeSgpYCBmdW5jdGlvbiBjcmVhdGVzIGEgcmVnaXN0cnkgZm9yIGBiYXRjaHRvb2xzYC4gWW91IGNhbiB0aGluayBvZiB0aGUgcmVnaXN0cnkgYXMgdGhlIGNvbW11bmljYXRpb24gY2VudGVyIGZvciBSLCB5b3VyIGZ1bmN0aW9ucywgYW5kIHRoZSBjbHVzdGVyLiBJdCB3aWxsIHN0b3JlIGV2ZXJ5dGhpbmcgaW4gYSBkaXJlY3RvcnkuIFRoZSBgbWFrZVJlZ2lzdHJ5KClgIGZ1bmN0aW9uIG5lZWRzIHRoZSBhcmd1bWVudCBgZmlsZS5kaXJgIGFyZ3VtZW50LCB0aGUgbG9jYXRpb24gdG8gc3RvcmUgdGhlIHJlZ2lzdHJ5LCBhbmQgYGNvbmYuZmlsZT0uYmF0Y2h0b29scy5jb25mLlJgLiBTdG9yZSB0aGUgb3V0cHV0IGZyb20gdGhlIGZ1bmN0aW9uIGludG8gYW4gUiBvYmplY3QuCgojIyMgYGJhdGNoTWFwKClgCgpUaGUgYGJhdGNoTWFwKClgIGZ1bmN0aW9uIGNyZWF0ZXMgam9icyB0byBiZSBzdWJtaXR0ZWQgZnJvbSBhIGNsdXN0ZXIuIFRoZSBmaXJzdCBhcmd1bWVudCwgYGZ1bmAsIGlzIHRoZSB1c2VyLWdlbmVyYXRlZCBmdW5jdGlvbiBhbmQgdGhlIGFkZGl0aW9uYWwgYXJndW1lbnRzIGFyZSBmb3IgdGhlIHVzZXItZ2VuZXJhdGVkIGZ1bmN0aW9uLiBUaGUgYGJhdGNoTWFwKClgIGZ1bmN0aW9uIHdpbGwgcHJvZHVjZSBhIGRhdGEgZnJhbWUgb2YgaWRzIGZvciBlYWNoIGpvYiBhcyBhbiBvdXRwdXQuIFRoZSBqb2IgaWRzIGFyZSB0aGUgbnVtZXJpYyBpbmRleCBvZiBlYWNoIGVsZW1lbnQgaW4gYSBsaXN0L3ZlY3Rvci4KCiMjIyBgc3VibWl0Sm9icygpYAoKVGhlIGBzdWJtaXRKb2JzKClgIGZ1bmN0aW9uIHdpbGwgc3VibWl0IGpvYnMgdG8gdGhlIGNsdXN0ZXIuIEl0IHdpbGwgbmVlZCBvdXRwdXQgZnJvbSB0aGUgYGJhdGNoTWFwKClgIGZ1bmN0aW9uIGFzIHRoZSBmaXJzdCBhcmd1bWVudC4gQWRkaXRpb25hbGx5LCBpdCB3aWxsIG5lZWQgdGhlIGxvY2F0aW9uIG9nIHRoZSByZWdpc3RyeSAoYHJlZ2AgYXJndW1lbnQpLCBmcm9tIGEgc3RvcmVkIFIgb2JqZWN0LCBhbmQgYSBsaXN0IG9mIHJlc291cmNlcyAoYHJlc291cmNlc2AgYXJndW1lbnQpLgoKIyMjIGBnZXRTdGF0dXMoKWAKClRoZSBgZ2V0U3RhdHVzKClgIGZ1bmN0aW9uIGNoZWNrcyB0aGUgc3RhdHVzIG9mIHlvdXIgam9icyBhbmQgcHJvdmlkZXMgaW5mb3JtYXRpb24gb2YgZWFjaCBqb2JzIHN0YXRlLgoKIyMjIGBraWxsSm9icygpYAoKVGhlIGBraWxsSm9icygpYCBmdW5jdGlvbiB3aWxsIGtpbGwgYWxsIHlvdXIgam9icy4gVGhpcyBpcyBlcXVpdmFsZW50IHRvIGBzY2FuY2VsYC4KCiMjIyBgbG9hZFJlc3VsdCgpYAoKVGhlIGBsb2FkUmVzdWx0KClgIGZ1bmN0aW9uIHdpbGwgbG9hZCB0aGUgcmVzdWx0cyBvZiBlYWNoIGpvYi4gWW91IHdpbGwgbmVlZCB0byBzcGVjaWZ5IHRoZSBpZCB0byBsb2FkIHRoZSByZXN1bHRzLgoKIyMjIGBjbGVhclJlZ2lzdHJ5KClgCgpUaGUgYGNsZWFyUmVnaXN0cnkoKWAgZnVuY3Rpb24gd2lsbCBkZWxldGUgZmlsZXMgaW4gdGhlIHJlZ2lzdHJ5IHRvIHJlLXN1Ym1pdCBqb2JzLgoKIyMjIGByZW1vdmVSZWdpc3RyeSgpYAoKVGhlIGByZW1vdmVSZWdpc3RyeSgpYCBmdW5jdGlvbiB3aWxsIGRlbGV0ZSB0aGUgZW50aXJlIHJlZ2lzdHJ5LgoKIyBTaW11bGF0aW9uIEV4YW1wbGUKClRvIGRlbW9uc3RyYXRlIGhvdyB0byB1c2UgdGhlIGBiYXRjaHRvb2xzYCBwYWNrYWdlIGluIFIsIHdlIGNvbmR1Y3Qgc2V2ZXJhbCBzaW11bGF0aW9uIHN0dWRpZXMgc2hvd2luZyBob3cgdGhlIGVzdGltYXRlcyBmcm9tIHRoZSBvcmRpbmFyeSBsZWFzdCBzcXVhcmVzIGVzdGltYXRvciBsZWFkcyB0byB1bmJpYXNlZCByZXN1bHRzLiBXZSB3aWxsIHNpbXVsYXRlIGRhdGEgZnJvbSB0aGUgZm9sbG93aW5nIG1vZGVsczoKCiQkClkgXHNpbSBOKDIwKzMwWCxcIDMpCiQkICQkClkgXHNpbSBOKDUtOFhfMSsyWF8yLFwgMykKJCQKCiQkClkgXHNpbSBOKDUrNFhfMS01WF8yLTNYXzMsXCAzKQokJAoKJCQKWSBcc2ltIE4oNSs0WF8xKy01WF8yLTNYXzMrNlhfNCxcIDMpCiQkIEVhY2ggc2ltdWxhdGlvbiBzY2VuYXJpbyB3aXRoIGhhdmUgNTAwIGRhdGEgc2V0cyB3aXRoIDIwMCBvYnNlcnZhdGlvbnMuIFRoZSB2YWx1ZXMgZm9yIHRoZSBwcmVkaWN0b3IgdmFyaWFibGVzIHdpbGwgYmUgc2ltdWxhdGVkIGJ5IG11bHRpdmFyaWF0ZSBub3JtYWwgZGlzdHJpYnV0aW9ucy4gVGhlIG1lYW4gdmVjdG9yIGZvciB0aGUgcHJlZGljdG9ycyBzaW11bGF0aW9uIGFyZSAkKC0yLCAwKV5UJCwgJCgtMiwgMCleVCQsICQoLTIsIDAsIDIpXlQkLCAkKC0yLCAwLCAyIDgpXlQkLiBFYWNoIGNvdmFyaWFuY2UgZm9yIHRoZSBwcmVkaWN0b3Igc2ltdWxhdGlvbiB3aWxsIGJlIGFuIGlkZW50aXR5IG1hdHJpeC4KCiMjIFNpbXVsYXRpb24gUGFyYW1ldGVycwoKVGhlIHNpbXVsYXRpb24gcGFyYW1ldGVycyB3aWxsIGJlIHN0b3JlZCBpbiBhIGxpc3QuIEVhY2ggZWxlbWVudCBpbiB0aGUgbGlzdCB3aWxsIGNvbnRhaW4gaW5mb3JtYXRpb24gb2YgdGhlIGFib3V0IHRoZSBzaW11bGF0aW9uIGFuZCB0aGUgZm9ybXVsYSBmb3IgdGhlIGBsbSgpYCBmdW5jdGlvbi4KCmBgYHtyfQpzaW1fbGlzdCA8LSBsaXN0KGxpc3QoTiA9IDUwMCwgIyBOdW1iZXIgb2YgRGF0YSBzZXRzCiAgICAgICAgICAgICAgICAgICAgICBub2JzID0gMjAwLCAjIE51bWJlciBvZiBvYnNlcnZhdGlvbnMKICAgICAgICAgICAgICAgICAgICAgIGJldGEgPSBjKDIwLCAzMCksICMgYmV0YSBwYXJhbWV0ZXJzCiAgICAgICAgICAgICAgICAgICAgICB4bWVhbnMgPSBjKDApLCAjIE1lYW5zIGZvciBwcmVkaWN0b3JzCiAgICAgICAgICAgICAgICAgICAgICB4c2lncyA9IGRpYWcocmVwKDEsIDEpKSwgIyBWYXJpYW5jZSBmb3IgcHJlZGljdG9yCiAgICAgICAgICAgICAgICAgICAgICBzaWdtYSA9IDMsICMgVmFyaWFuY2UgZm9yIGVycm9yIHRlcm0KICAgICAgICAgICAgICAgICAgICAgIGZvcm11bGEgPSB5IH4geCksICNGb3JtdWxhCiAgICAgICAgICAgICAgICAgbGlzdChOID0gNTAwLCAjIE51bWJlciBvZiBEYXRhIHNldHMKICAgICAgICAgICAgICAgICAgICAgIG5vYnMgPSAyMDAsICMgTnVtYmVyIG9mIG9ic2VydmF0aW9ucwogICAgICAgICAgICAgICAgICAgICAgYmV0YSA9IGMoNSwgLTgsIDIpLCAjIGJldGEgcGFyYW1ldGVycwogICAgICAgICAgICAgICAgICAgICAgeG1lYW5zID0gYygtMiwgMCksICMgTWVhbnMgZm9yIHByZWRpY3RvcnMKICAgICAgICAgICAgICAgICAgICAgIHhzaWdzID0gZGlhZyhyZXAoMSwgMikpLCAjIFZhcmlhbmNlIGZvciBwcmVkaWN0b3IKICAgICAgICAgICAgICAgICAgICAgIHNpZ21hID0gMywgIyBWYXJpYW5jZSBmb3IgZXJyb3IgdGVybQogICAgICAgICAgICAgICAgICAgICAgZm9ybXVsYSA9IHkgfiB4LjEgKyB4LjIpLCAjRm9ybXVsYQogICAgICAgICAgICAgICAgIGxpc3QoTiA9IDUwMCwgIyBOdW1iZXIgb2YgRGF0YSBzZXRzCiAgICAgICAgICAgICAgICAgICAgICBub2JzID0gMjAwLCAjIE51bWJlciBvZiBvYnNlcnZhdGlvbnMKICAgICAgICAgICAgICAgICAgICAgIGJldGEgPSBjKDUsIDQsIC01LCAtMyksICMgYmV0YSBwYXJhbWV0ZXJzCiAgICAgICAgICAgICAgICAgICAgICB4bWVhbnMgPSBjKC0yLCAwLCAyKSwgIyBNZWFucyBmb3IgcHJlZGljdG9ycwogICAgICAgICAgICAgICAgICAgICAgeHNpZ3MgPSBkaWFnKHJlcCgxLCAzKSksICMgVmFyaWFuY2UgZm9yIHByZWRpY3RvcgogICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSAzLCAjIFZhcmlhbmNlIGZvciBlcnJvciB0ZXJtCiAgICAgICAgICAgICAgICAgICAgICBmb3JtdWxhID0geSB+IHguMSArIHguMiArIHguMyksICAjRm9ybXVsYQogICAgICAgICAgICAgICAgIGxpc3QoTiA9IDUwMCwgIyBOdW1iZXIgb2YgRGF0YSBzZXRzCiAgICAgICAgICAgICAgICAgICAgICBub2JzID0gMjAwLCAjIE51bWJlciBvZiBvYnNlcnZhdGlvbnMKICAgICAgICAgICAgICAgICAgICAgIGJldGEgPSBjKDUsIDQsIC01LCAtMywgNiksICMgYmV0YSBwYXJhbWV0ZXJzCiAgICAgICAgICAgICAgICAgICAgICB4bWVhbnMgPSBjKC0yLCAwLCAyLCA4KSwgIyBNZWFucyBmb3IgcHJlZGljdG9ycwogICAgICAgICAgICAgICAgICAgICAgeHNpZ3MgPSBkaWFnKHJlcCgxLCA0KSksICMgVmFyaWFuY2UgZm9yIHByZWRpY3RvcgogICAgICAgICAgICAgICAgICAgICAgc2lnbWEgPSAzLCAjIFZhcmlhbmNlIGZvciBlcnJvciB0ZXJtCiAgICAgICAgICAgICAgICAgICAgICBmb3JtdWxhID0geSB+IHguMSArIHguMiArIHguMyArIHguNCkgI0Zvcm11bGEKKQpgYGAKCiMjIFNpbXVsYXRpb24gRnVuY3Rpb25zCgpUaGUgZnVuY3Rpb24gYmVsb3cgZ2VuZXJhdGVzIDEgZGF0YSBzZXQgZnJvbSBhIHNpbXVsYXRpb24gc2NlbmFyaW8gYWJvdmUgYW5kIHJldHVybnMgYSBkYXRhIGZyYW1lLgoKYGBge3J9CmRhdGFfc2V0X3NpbSA8LSBmdW5jdGlvbihzZWVkLCBub2JzLCBiZXRhLCBzaWdtYSwgeG1lYW5zLCB4c2lncyl7ICMgU2ltdWxhdGVzIHRoZSBkYXRhIHNldAogIHNldC5zZWVkKHNlZWQpICMgU2V0cyBhIHNlZWQKICB4cm4gPC0gcm12bm9ybShub2JzLCBtZWFuID0geG1lYW5zLCBzaWdtYSA9IHhzaWdzKSAjIFNpbXVsYXRlcyBQcmVkaWN0b3JzCiAgeHBlZCA8LSBjYmluZChyZXAoMSxub2JzKSx4cm4pICMgQ3JlYXRpbmcgRGVzaWduIE1hdHJpeAogIHkgPC0geHBlZCAlKiUgYmV0YSArIHJub3JtKG5vYnMgLDAsIHNpZ21hKSAjIFNpbXVsYXRpbmcgWQogIGRmIDwtIGRhdGEuZnJhbWUoeD14cm4sIHk9eSkgIyBDcmVhdGluZyBEYXRhIEZyYW1lCiAgcmV0dXJuKGRmKQp9CmBgYAoKVGhlIGZ1bmN0aW9uIG5lZWRzIHRoZSBmb2xsb3dpbmcgYXJndW1lbnRzOgoKLSAgIGBzZWVkYDogdGhlIHZhbHVlIHRvIHNldCBmb3IgdGhlIHJhbmRvbSBudW1iZXIgZ2VuZXJhdG9yCi0gICBgbm9ic2A6IG51bWJlciBvZiBvYnNlcnZhdGlvbnMKLSAgIGBiZXRhYDogYSB2ZWN0b3Igc3BlY2lmeWluZyB0aGUgdHJ1ZSB2YWx1ZXMgZm9yIHRoZSByZWdyZXNzaW9uIGNvZWZmaWNpZW50cyAoJFxiZXRhXzAkLCAkXGJldGFfMSQsICRcYmV0YV8yJCwgJFxiZXRhXzMkKQotICAgYHNpZ21hYDogdGhlIHZhcmlhbmNlIGZvciB0aGUgbW9kZWwgYWJvdmUKLSAgIGB4bWVhbnNgOiBhIHZlY3RvciBvZiBtZWFucyB1c2VkIHRvIGdlbmVyYXRlIHRoZSB2YWx1ZXMgZm9yICRYXzEkLCAkWF8yJCwgYW5kICRYXzMkCi0gICBgeHNpZ3NgOiBhIG1hdHJpeCBmb3IgdGhlIGNvdmFyaWFuY2UgZm9yICRYXzEkLCAkWF8yJCwgYW5kICRYXzMkCgpUaGUgZnVuY3Rpb24gYmVsb3cgZ2VuZXJhdGVzIHRoZSBkYXRhIGZvciBhIHNpbXVsYXRpb24gc2NlbmFyaW8gYW5kIHJldHVybnMgYSBsaXN0IG9mIGRhdGEgKGluIGEgbGlzdCkgYW5kIHRoZSBmb3JtdWxhIHRvIGFzc2VzcyB0aGUgZGF0YSBmb3IgdGhlIGBsbSgpYCBmdW5jdGlvbgoKYGBge3J9CmRhdGFfc2ltIDwtIGZ1bmN0aW9uKGRhdGEpeyAjIFNpbXVsYXRlcyB0aGUgZGF0YSBzZXQKICBkZl9saXN0IDwtIGxhcHBseSgxOmRhdGEkTiwgZGF0YV9zZXRfc2ltLAogICAgICAgICAgICAgICAgICAgIG5vYnMgPSBkYXRhJG5vYnMsIGJldGEgPSBkYXRhJGJldGEsIHNpZ21hID0gZGF0YSRzaWdtYSwKICAgICAgICAgICAgICAgICAgICB4bWVhbnMgPSBkYXRhJHhtZWFucywgeHNpZ3MgPSBkYXRhJHhzaWdzKQogIHJldHVybihsaXN0KGRmX2xpc3QgPSBkZl9saXN0LCBmb3JtdWxhID0gZGF0YSRmb3JtdWxhKSkKfQoKYGBgCgpUaGUgZnVuY3Rpb24gYmVsb3cgdGFrZXMgdGhlIGRhdGEgZ2VuZXJhdGVkIGZyb20gdGhlIGBkYXRhX3NpbSgpYCBhbmQgZml0cyBhIGxpbmVhciByZWdyZXNzaW9uIG1vZGVsLiBUaGUgZnVuY3Rpb24gd3JhcHMgYXJvdW5kIHRoZSBgbG0oKWAgZnVuY3Rpb24gYW5kIHJldHVybnMgZXN0aW1hdGVkIHJlZ3Jlc3Npb24gY29lZmZpY2llbnRzLgoKIyBQYXJhbGxlbGl6YXRpb24KCiMjIEZ1bmN0aW9uCgpUaGUgZnVuY3Rpb24gYmVsb3cgcHJvY2VzcyB0aGUgZGF0YSBhbmQgaW1wbGVtZW50cyB0aGUgYGxtKClgIHRvIHRoZSBkYXRhLiBUaGlzIGlzIHRoZSBmdW5jdGlvbiB0aGF0IHdpbGwgYmUgdXNlZCBpbiBgYmF0Y2h0b29sc2AuIEZpcnN0LCB0aGUgZnVuY3Rpb24gb2J0YWlucyB0aGUgbnVtYmVyIG9mIGRhdGEgc2V0cyBpdCB3aWxsIHByb2Nlc3MuIFNlY29uZCwgaXQgY3JlYXRlcyB0aGUgYGxtX2NvZWYoKWAgZnVuY3Rpb24gd2hpY2ggYXBwbGllcyB0aGUgYGxtKClgIGZ1bmN0aW9uIHRvIHRoZSBkYXRhW14zXS4gVGhpcmQsIGEgcGFyYWxsZWwgcHJvY2Vzc29yIGlzIGFwcGxpZWQgdG8gZ28gdGhyb3VnaCB0aGUgZGF0YSBbXjRdLiBMYXN0bHksIHRoZSByZXN1bHRzIGFyZSBjb252ZXJ0ZWQgdG8gYSBtYXRyaXggYW5kIHJldHVybmVkIGFzIHRoZSBvdXRwdXQuCgpbXjNdOiBVc2VyIGNyZWF0ZWQgZnVuY3Rpb25zIG5lZWRzIHRvIGJlIGNyZWF0ZWQgd2l0aGluIHRoZSBmdW5jdGlvbiB0byBiZSBsb2FkZWQgaW4gYGJhdGNodG9vbHNgCgpbXjRdOiBGb3IgbW9yZSBpbmZvcm1hdGlvbiBhYm91dCBwYXJhbGxlbCBwcm9jZXNzaW5nIHdpdGggdGhlIGBwYXJhbGxlbGAgcGFja2FnZSwgdmlzaXQgW2hlcmVdKHBhcmFsbGVsX25vdGVib29rLm5iLmh0bWwpCgpgYGB7cn0KcGFyYWxsZWxfbG08LWZ1bmN0aW9uKGRhdGEpewogIGxsPC1sZW5ndGgoZGF0YSRkZl9saXN0KQogIAogIGxtX2NvZWYgPC0gZnVuY3Rpb24oZm9ybXVsYSwgZGF0YSl7ICMgQXBwbHlpbmcgYSBPcmRpbmFyeSBMZWFzdCBTcXVhcmVzIAogICAgbG1fcmVzIDwtIGxtKGZvcm11bGEsIGRhdGEgPSBkYXRhKSAjIEZpbmQgT0xTIEVzdGltYXRlcwogICAgcmV0dXJuKGFzLnZlY3Rvcihjb2VmKGxtX3JlcykpKSMgT2J0YWluaW5nIAogIH0KICAKICByZXN1bHRzIDwtIHBhcmFsbGVsOjptY2xhcHBseShkYXRhJGRmX2xpc3QsIGxtX2NvZWYsIGZvcm11bGEgPSBkYXRhJGZvcm11bGEsICMgQXBwbGllcyBsbV9jb2VmIAogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIG1jLmNvcmVzID0gOCkgIyBVc2luZyB0aGUgcGFyYWxsZWwgcGFja2FnZSB0byBwYXJhbGxlbGl6ZSAKICAKICBtYXQ8LW1hdHJpeCh1bmxpc3QocmVzdWx0cyksIG5yb3cgPSBsbCwgYnlyb3cgPSBUKQogIHJldHVybihtYXQpCn0KYGBgCgojIyBFeGVjdXRpb24KCiMjIyBNb2R1bGVzCgpMb2FkIHRoZSBzbHVybSBtb2R1bGUgaW50byBSLgoKYGBge3J9Cm1vZHVsZSgnbG9hZCcsJ3NsdXJtJykKYGBgCgojIyMgUmVnaXN0cnkKCkNyZWF0ZSBhIHJlZ2lzdHJ5IGFuZCBzdG9yZSBpdCBpbiBhbiBSIG9iamVjdC4KCmBgYHtyfQpyZWcgPC0gbWFrZVJlZ2lzdHJ5KGZpbGUuZGlyPSJteXJlZ2RpciIsIGNvbmYuZmlsZT0iLmJhdGNodG9vbHMuY29uZi5SIikKYGBgCgojIyMgUmVzb3VyY2VzCgpDcmVhdGUgYSBsaXN0IHdpdGggdGhlIGZvbGxvd2luZyBlbGVtZW50cyBhbmQgc3RvcmUgaXQgaW4gYW4gUiBvYmplY3Q6CgotICAgYHBhcnRpdGlvbmA6IFRoZSBjbHVzdGVyIHBhcnRpdGlvbiB0byB1c2UgKGAic3Rhc3RkZXB0ImApCgotICAgYHdhbGx0aW1lYDogVGhlIHRpbWUgdG8gcnVuIHRoZSBqb2IgaW4gc2Vjb25kcyAoYDEyMGApCgotICAgYG50YXNrc2A6IFRoZSBudW1iZXIgb2YgdGFza3MgdG8gY29tcGxldGUgKGAxYCkKCi0gICBgbmNwdXNgOiBUaGUgbnVtYmVyIG9mIGNwdXMgdG8gY29tcGxldGUgdGhlIHRhc2sgKGA4YCkKCi0gICBgbWVtb3J5YDogSG93IG11Y2ggbWVtb3J5IGlzIGJlaW5nIHVzZWQgaW4gTUIgKGAxMDI0YCkKCmBgYHtyfQpyZXMgPC0gbGlzdChwYXJ0aXRpb249InN0YXRzZGVwdCIsIHdhbGx0aW1lPTEyMCwgbnRhc2tzPTEsIG5jcHVzPTgsIG1lbW9yeT0xMDI0KQpgYGAKCiMjIyBCYXRjaCBKb2JzIFByZXAKClVzZSB0byBgYmF0Y2hNYXAoKWAgZnVuY3Rpb24gdG8gY3JlYXRlIHRoZSBqb2JzIHRoYXQgbmVlZCB0byBiZSBzdWJtaXR0ZWQgaW50byB0aGUgY2x1c3RlciBhbmQgc3RvcmUgaXQgYW4gUiBvYmplY3QuCgpgYGB7cn0Kc3VibWlzc2lvbl9pZCA8LSBiYXRjaE1hcChwYXJhbGxlbF9sbSwgZGF0YSA9IHN0YW5kYXJkX2RhdGEpCmBgYAoKIyMjIFN1Ym1pdHRpbmcgSm9icwoKU3VibWl0IHRoZSBqb2JzIHVzaW5nIHRoZSBgc3VibWl0Sm9icygpYCBhbmQgc3RvcmUgaXQgaW4gYW4gUiBvYmplY3QuCgpgYGB7cn0KZG9uZSA8LSBzdWJtaXRKb2JzKHN1Ym1pc3Npb25faWQsIHJlZz1yZWcsIHJlc291cmNlcz1yZXMpCmBgYAoKIyMjIEdldHRpbmcgSm9iIFN0YXR1cwoKVXNlIHRoZSBgZ2V0U3RhdHVzKClgIGZ1bmN0aW9uIHRvIGNoZWNrIG9uIHRoZSBzdGF0dXMgb2YgeW91ciBqb2JzLgoKYGBge3J9CmdldFN0YXR1cygpCmBgYAoKIyBSZXN1bHRzCgpPbmNlIHlvdXIgam9icyBhcmUgY29tcGxldGVkLCB5b3UgY2FuIGNoZWNrIHRoZSByZXN1bHRzLiBGaXJzdCB5b3Ugd2lsbCBuZWVkIHRvIGV4dHJhY3QgdGhlIHJlc3VsdHMgZnJvbSB0aGUgcmVnaXN0cnkgYW5kIHN0b3JlIGl0IGluIGFuIFIgb2JqZWN0LgoKYGBge3J9CnBhcmFsbGVsX3Jlc3VsdHMgPC0gbGFwcGx5KDE6bGVuZ3RoKHN0YW5kYXJkX2RhdGEpLCBsb2FkUmVzdWx0KSAjb2J0YWlucyB0aGUgcmVzdWx0cyBvZiBlYWNoIGpvYiBhZGRzIHRoZW0gYXMgYW4gZWxlbWVudCBpbiBhIGxpc3QKYGBgCgpOb3cgdXNlIHRoZSBgY29sTWVhbnMoKWAgZnVuY3Rpb24gdG8gc2VlIGlmIHRoZSBzaW11bGF0aW9uIHN0dWR5IHdvcmtlZC4KCmBgYHtyfQpsYXBwbHkocGFyYWxsZWxfcmVzdWx0cywgY29sTWVhbnMpCmBgYAoKIyBOb3RlcwoKIyMgRXJyb3I6IFJlYWNoZWQgU3VibWlzc2lvbiBMaW1pdCBvciBSZXNvdXJjZXMgTGltaXQKCklmIFlvdSByZWNlaXZlIGFuIGVycm9yIGFib3V0IHJlYWNoaW5nIGxpbWl0cywgZG8gbm90IHdvcnJ5IGFib3V0IGl0LiBUaGUgc2x1cm0gc3lzdGVtIHdpbGwgdGFrZSBjYXJlIG9mIHRoaXMuIFR5cGUgdGhlIGZvbGxvd2luZyBiZWxvdyB0byBjYW5jZWwgYWxsIHlvdXIgam9icyBhbmQgdHJ5IGFnYWluLgoKYGBge2Jhc2h9CnNxdWV1ZSAtLXVzZXIgJFVTRVIgLS1ub2hlYWRlciAtLWZvcm1hdCAnJWknIHwgeGFyZ3Mgc2NhbmNlbApgYGAK</div>
 
 
 </div>
@@ -3293,7 +3325,7 @@ $(document).ready(function () {
 <!-- code folding -->
 <script>
 $(document).ready(function () {
-  window.initializeSourceEmbed("parallel_notebook.Rmd");
+  window.initializeSourceEmbed("batchtools_notebook.Rmd");
   window.initializeCodeFolding("show" === "show");
 });
 </script>
