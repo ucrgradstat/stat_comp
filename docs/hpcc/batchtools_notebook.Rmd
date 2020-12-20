@@ -15,7 +15,7 @@ knitr::opts_chunk$set(eval = FALSE)
 
 # Introduction
 
-R is designed to only use one cpu (or core) when running tasks^[Testing]. However, you may have access to a computer cluster[^1] that allows you to access more RAM and cpus. The use of more than one cpu is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the `batchtools` package and utilizing more cores in a cluster.
+R is designed to only use one cpu (or core) when running tasks. However, you may have access to a computer cluster[^1] that allows you to access more RAM and cpus. The use of more than one cpu is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the `batchtools` package and utilizing more cores in a cluster.
 
 [^1]: The cluster has a scheduling system implemented.
 
@@ -23,7 +23,7 @@ This tutorial is built off the information provided by UCR's High Performance Co
 
 This tutorial is meant to be run on the [HPCC](https://hpcc.ucr.edu/) cluster at UCR. You will need an account to the HPCC cluster. If you are a graduate student in UCR's [Statistics Department](https://statistics.ucr.edu/), contact the UCR Statistics Graduate Student Association to gain access.
 
-This tutorial has an R script that you can use in the cluster. You can access R script [here](batchtools.R)
+This tutorial conducts different simulation scenarios to be submitted as jobs. It requires an amount of set up to be effective. There is an an R script that you can use that may provide better insight on using `batchtools`. You can access R script [here](batchtools.R)
 
 # Files, Functions and Packages
 
@@ -36,10 +36,11 @@ download.file("https://bit.ly/3gZJBsy", "slurm.tmpl")
 download.file("https://bit.ly/3nvSNHA", ".batchtools.conf.R")
 ```
 
-
 ## Packages
 
-You will need to use 2 R packages: `RenvModule` and `batchtools`. The `RenvModule`^[Fun Fact: This package is from HPCC] package provides the tools to interact with modules in the cluster. The `batchtools` package provides the tools to parallelize your code. Both are needed. For this tutorial, you will also need to have the `mvtrnorm` package installed.
+You will need to use 2 R packages: `RenvModule` and `batchtools`. The `RenvModule`[^2] package provides the tools to interact with modules in the cluster. The `batchtools` package provides the tools to parallelize your code. Both are needed. For this tutorial, you will also need to have the `mvtrnorm` package installed.
+
+[^2]: Fun Fact: This package is from HPCC
 
 ```{r}
 library(RenvModule)
@@ -55,11 +56,11 @@ The `module()` function loads different modules into the R environment.
 
 ### `makeRegistry()`
 
-The `makeRegistry()` function creates a registry for `batchtools`. You can think of the registry as the communication center for R, your functions, and the cluster. It will store everything in a directory. The `makeRegistry()` function needs the argument `file.dir` argument, the location to store the registry, and `conf.file=.batchtools.conf.R`. Store the output from the function into an R object.  
+The `makeRegistry()` function creates a registry for `batchtools`. You can think of the registry as the communication center for R, your functions, and the cluster. It will store everything in a directory. The `makeRegistry()` function needs the argument `file.dir` argument, the location to store the registry, and `conf.file=.batchtools.conf.R`. Store the output from the function into an R object.
 
 ### `batchMap()`
 
-The `batchMap()` function creates jobs to be submitted from a cluster. The first argument, `fun`, is the user-generated function and the additional arguments are for the user-generated function. The `batchMap()` function will produce a data frame of ids for each job as an output. The job ids are the numeric index of each element in a list/vector. 
+The `batchMap()` function creates jobs to be submitted from a cluster. The first argument, `fun`, is the user-generated function and the additional arguments are for the user-generated function. The `batchMap()` function will produce a data frame of ids for each job as an output. The job ids are the numeric index of each element in a list/vector.
 
 ### `submitJobs()`
 
@@ -91,21 +92,17 @@ To demonstrate how to use the `batchtools` package in R, we conduct several simu
 
 $$
 Y \sim N(20+30X,\ 3)
-$$
-$$
+$$ $$
 Y \sim N(5-8X_1+2X_2,\ 3)
 $$
-
 
 $$
 Y \sim N(5+4X_1-5X_2-3X_3,\ 3)
 $$
 
-
 $$
 Y \sim N(5+4X_1+-5X_2-3X_3+6X_4,\ 3)
-$$
-Each simulation scenario with have 500 data sets with 200 observations. The values for the predictor variables will be simulated by multivariate normal distributions. The mean vector for the predictors simulation are $(-2, 0)^T$, $(-2, 0)^T$, $(-2, 0, 2)^T$, $(-2, 0, 2 8)^T$. Each covariance for the predictor simulation will be an identity matrix.
+$$ Each simulation scenario with have 500 data sets with 200 observations. The values for the predictor variables will be simulated by multivariate normal distributions. The mean vector for the predictors simulation are $(-2, 0)^T$, $(-2, 0)^T$, $(-2, 0, 2)^T$, $(-2, 0, 2 8)^T$. Each covariance for the predictor simulation will be an identity matrix.
 
 ## Simulation Parameters
 
@@ -143,8 +140,6 @@ sim_list <- list(list(N = 500, # Number of Data sets
 )
 ```
 
-
-
 ## Simulation Functions
 
 The function below generates 1 data set from a simulation scenario above and returns a data frame.
@@ -169,7 +164,7 @@ The function needs the following arguments:
 -   `xmeans`: a vector of means used to generate the values for $X_1$, $X_2$, and $X_3$
 -   `xsigs`: a matrix for the covariance for $X_1$, $X_2$, and $X_3$
 
-The function below generates the data for a simulation scenario and returns a list of data (in a list) and the formula to assess the data for the `lm()` function 
+The function below generates the data for a simulation scenario and returns a list of data (in a list) and the formula to assess the data for the `lm()` function
 
 ```{r}
 data_sim <- function(data){ # Simulates the data set
@@ -181,14 +176,17 @@ data_sim <- function(data){ # Simulates the data set
 
 ```
 
-
 The function below takes the data generated from the `data_sim()` and fits a linear regression model. The function wraps around the `lm()` function and returns estimated regression coefficients.
 
 # Parallelization
 
 ## Function
 
-The function below process the data and implements the `lm()` to the data. This is the function that will be used in `batchtools`. First, the function obtains the number of data sets it will process. Second, it creates the `lm_coef()` function which applies the `lm()` function to the data^[User created functions needs to be created within the function to be loaded in `batchtools`]. Third, a parallel processor is applied to go through the data ^[For more information about parallel processing with the `parallel` package, visit [here](parallel_notebook.nb.html)]. Lastly, the results are converted to a matrix and returned as the output.   
+The function below process the data and implements the `lm()` to the data. This is the function that will be used in `batchtools`. First, the function obtains the number of data sets it will process. Second, it creates the `lm_coef()` function which applies the `lm()` function to the data[^3]. Third, a parallel processor is applied to go through the data [^4]. Lastly, the results are converted to a matrix and returned as the output.
+
+[^3]: User created functions needs to be created within the function to be loaded in `batchtools`
+
+[^4]: For more information about parallel processing with the `parallel` package, visit [here](parallel_notebook.nb.html)
 
 ```{r}
 parallel_lm<-function(data){
@@ -206,7 +204,6 @@ parallel_lm<-function(data){
   return(mat)
 }
 ```
-
 
 ## Execution
 
@@ -230,15 +227,15 @@ reg <- makeRegistry(file.dir="myregdir", conf.file=".batchtools.conf.R")
 
 Create a list with the following elements and store it in an R object:
 
-- `partition`: The cluster partition to use (`"stastdept"`)
+-   `partition`: The cluster partition to use (`"stastdept"`)
 
-- `walltime`: The time to run the job in seconds (`120`)
+-   `walltime`: The time to run the job in seconds (`120`)
 
-- `ntasks`: The number of tasks to complete (`1`)
+-   `ntasks`: The number of tasks to complete (`1`)
 
-- `ncpus`: The number of cpus to complete the task (`8`)
+-   `ncpus`: The number of cpus to complete the task (`8`)
 
-- `memory`: How much memory is being used in MB (`1024`)
+-   `memory`: How much memory is being used in MB (`1024`)
 
 ```{r}
 res <- list(partition="statsdept", walltime=120, ntasks=1, ncpus=8, memory=1024)
@@ -246,12 +243,11 @@ res <- list(partition="statsdept", walltime=120, ntasks=1, ncpus=8, memory=1024)
 
 ### Batch Jobs Prep
 
-Use to `batchMap()` function to create the jobs that need to be submitted into the cluster and store it an R object. 
+Use to `batchMap()` function to create the jobs that need to be submitted into the cluster and store it an R object.
 
 ```{r}
 submission_id <- batchMap(parallel_lm, data = standard_data)
 ```
-
 
 ### Submitting Jobs
 
@@ -261,7 +257,6 @@ Submit the jobs using the `submitJobs()` and store it in an R object.
 done <- submitJobs(submission_id, reg=reg, resources=res)
 ```
 
-
 ### Getting Job Status
 
 Use the `getStatus()` function to check on the status of your jobs.
@@ -269,7 +264,6 @@ Use the `getStatus()` function to check on the status of your jobs.
 ```{r}
 getStatus()
 ```
-
 
 # Results
 
@@ -285,7 +279,6 @@ Now use the `colMeans()` function to see if the simulation study worked.
 lapply(parallel_results, colMeans)
 ```
 
-
 # Notes
 
 ## Error: Reached Submission Limit or Resources Limit
@@ -295,4 +288,3 @@ If You receive an error about reaching limits, do not worry about it. The slurm 
 ```{bash}
 squeue --user $USER --noheader --format '%i' | xargs scancel
 ```
-
