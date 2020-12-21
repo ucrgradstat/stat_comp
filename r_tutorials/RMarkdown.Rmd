@@ -1,9 +1,7 @@
 ---
 title: "R Markdown Guide"
-author: "Isaac Quintanilla"
+author: "Isaac Quintanilla Salinas"
 date: "`r Sys.Date()`"
-description: |
-    Tutorial for R Markdown.
 output: pdf_document
 fontsize: 12pt
 geometry: margin=1in
