@@ -1,9 +1,17 @@
 ---
 title: "Welcome!"
 description: |
-  We hope you find the tutorials provided by the graduate students informative! If you have any questions, please feel free to email us at ucr.grad.stat@gmail.com.
+
 site: distill::distill_website
 ---
+
+We hope you find the tutorials provided by the graduate students informative! If you have any questions, please feel free to email us at ucr.grad.stat@gmail.com.
+
+### UCR Statistics Graduate Student Association
+
+Visit our website for more information about what the UCR Statistics GSA is doing.
+
+[ucrgradstat.github.io](https://ucrgradstat.github.io/)
 
 ### Submitting Tutorials
 
