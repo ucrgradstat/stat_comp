@@ -60,10 +60,10 @@ d-appendix {
 
 .distill-site-header {
   --title-size:       20px;
-  --text-color:       rgba(255, 255, 255, 0.8);
+  --text-color:       #000000;
   --text-size:        18px;
   --hover-color:      white;
-  --bkgd-color:       #215A6D;
+  --bkgd-color:       #FFB81C;
 }
 
 .distill-site-footer {
