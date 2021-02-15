@@ -15,7 +15,7 @@ Visit our website for more information about what the UCR Statistics GSA is doin
 
 ### Submitting Tutorials
 
-If there is no tutorials for an issue you are facing, we encourage you to ask faculty for help. Once you resolved your issue, we encourage you to write and submit a tutorial, so the next student will have an easier time when facing your issue. For submitting a tutorial, please read the following page: HERE.
+If there is no tutorials for an issue you are facing, we encourage you to ask faculty for help. Once you resolved your issue, we encourage you to write and submit a tutorial, so the next student will have an easier time when facing your issue. For submitting a tutorial, please read the following page: [Submissions](https://ucrgradstat.github.io/stat_comp/submission.html).
 
 
 
