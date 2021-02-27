@@ -6,7 +6,7 @@
       "description": "This website provides different tutorials for your computing needs. This website is maintained by UCR's Department of Statistics Graduate Student Association. All tutorials submitted to the website were created by students who wanted to make it easier for the next person to learn about a different topic. For more information about the tutorials, please email us at ucr.grad.stat@gmail.com.\n",
       "author": [],
       "contents": "\n\n\n\n",
-      "last_modified": "2021-02-15T02:01:52-08:00"
+      "last_modified": "2021-02-26T16:25:42-08:00"
     },
     {
       "path": "hpcc.html",
@@ -15,14 +15,14 @@
       "author": [],
       "date": "`r Sys.Date()`",
       "contents": "\nParallel Programming in parallel\nHere is an introduction tutorial on how to use the parallel package in R.\nDOCS\nParallel Programming in batchtools\nHere is an introduction tutorial on how to use the batchtools package in R.\nDOCS\n\n\n\n",
-      "last_modified": "2021-02-15T02:01:52-08:00"
+      "last_modified": "2021-02-26T16:25:43-08:00"
     },
     {
       "path": "index.html",
       "title": "Welcome!",
       "author": [],
       "contents": "\nWe hope you find the tutorials provided by the graduate students informative! If you have any questions, please feel free to email us at ucr.grad.stat@gmail.com.\nUCR Statistics Graduate Student Association\nVisit our website for more information about what the UCR Statistics GSA is doing.\nucrgradstat.github.io\nSubmitting Tutorials\nIf there is no tutorials for an issue you are facing, we encourage you to ask faculty for help. Once you resolved your issue, we encourage you to write and submit a tutorial, so the next student will have an easier time when facing your issue. For submitting a tutorial, please read the following page: Submissions.\n\n\n\n",
-      "last_modified": "2021-02-15T02:01:53-08:00"
+      "last_modified": "2021-02-26T16:25:43-08:00"
     },
     {
       "path": "python_tutorials.html",
@@ -31,7 +31,7 @@
       "author": [],
       "date": "`r Sys.Date()`",
       "contents": "\nThere are currently no tutorials on Python. If you would like to submit a python tutorial, please let us know.\n\n\n\n",
-      "last_modified": "2021-02-15T02:01:53-08:00"
+      "last_modified": "2021-02-26T16:25:43-08:00"
     },
     {
       "path": "r_tutorials.html",
@@ -40,13 +40,13 @@
       "author": [],
       "date": "`r Sys.Date()`",
       "contents": "\nParallel Programming\nHere is a tutorial on how to use the parallel package in R.\nDOCS\nR Markdown\nHere is a document that provides the basics of R Markdown. Download the RMD and BIB file if you wish to compile it yourself. The PDF File shows how the RMD file should compile to a pdf.\nRMD | PDF | BIB\n\n\n\n",
-      "last_modified": "2021-02-15T02:01:53-08:00"
+      "last_modified": "2021-02-26T16:25:43-08:00"
     },
     {
       "path": "README.html",
       "author": [],
       "contents": "\nStatistical Computing Website Repository\nThis Repository contains all the files to construct the website: ucrgradstat.github.io/stat_comp/\nBuilding the Website\nThe website is a collection of R Markdown files\nWebsite Documents\nOther than the README.md file and tutorials, all the pages with this website were constructed with R Markdown Files. The three components the R Markdown files needed in the yaml header were the “title”, “description”, and “site”. The “description” line is needed to make the document searchable. The “site” line must follow what is below:\nsite: distill:distill_website\nTutorials\nThe tutorials can be any format. However, to host it on the website, an html file is needed. If students submit an R Markdown file, compile it and use the html file.\n\n\n",
-      "last_modified": "2021-02-15T02:01:54-08:00"
+      "last_modified": "2021-02-26T16:25:44-08:00"
     },
     {
       "path": "submission.html",
@@ -55,7 +55,7 @@
       "author": [],
       "date": "`r Sys.Date()`",
       "contents": "\nGuidelines\nYou are welcome to create the tutorial in any way you want. Our only requirement is that the tutorial has an html file that we can use for the website. You may also submit an R Markdown file and we will knit the document into an html file.\nIf you choose to provide data for your tutorial, please make sure the that data is publicly available. We recommend that you simulate your own data to prevent any issues. Additionally, the smaller the data set, the better.\nYou may also submit a YouTube video for your tutorial. All you need to do is provide the link to your video.\nLastly, make sure you cite any work you use.\nIf you need any help, please feel free to email us at ucr.grad.stat@gmail.com.\nRemoving A Tutorial\nIf you wish to no longer have your tutorial on this website, please email us and we will gladly remove it.\n\n\n\n",
-      "last_modified": "2021-02-15T02:01:54-08:00"
+      "last_modified": "2021-02-26T16:25:44-08:00"
     }
   ],
   "collections": []
