@@ -1,6 +1,14 @@
 project:
   type: website
   output-dir: docs
+  render: 
+    - README.qmd
+    - index.qmd
+    - about.qmd
+    - hpcc.qmd
+    - python_tutorials.qmd
+    - r_tutorials.qmd
+    - submission.qmd
 
 website:
   title: "STAT COMP"
@@ -25,7 +33,8 @@ website:
 format:
   html:
     theme: cosmo
+    css: styles.css
 
-exclude: ["hpcc/*_cache"]
+exclude: ["hpcc/*_cache", "r_tutorials/RMarkdown.Rmd"]
 editor: visual
 

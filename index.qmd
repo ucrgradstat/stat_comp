@@ -1,6 +1,8 @@
 ---
 pagetitle: "Home"
-format: html
+format: 
+  html:
+    include-in-header: hero_image.html
 section-divs: false
 toc: false
 editor: visual

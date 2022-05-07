@@ -1,46 +1,51 @@
 # Statistical Computing Website Repository
 
-This Repository contains all the files to construct the website: [ucrgradstat.github.io/stat_comp/](https://ucrgradstat.github.io/stat_comp/)
+This Repository contains all the files to construct the website:
+[ucrgradstat.github.io/stat_comp/](https://ucrgradstat.github.io/stat_comp/)
 
 ## Building the Website
 
-The website is a collection of R Markdown files. The website is built using the R package [distill](https://rstudio.github.io/distill/). Make changes to R Markdown files to update the website. Then use the code below to build the website:
+The website is a collection of R Markdown files. The website is built
+using [Quarto](quarto.org). Make changes to Q Markdown files to update
+the website. Then use the code below to build the website:
 
-```
-rmarkdown::render_site(encoding = 'UTF-8')
-```
+    quarto::quarto_render()
 
-You may also build the website from the build tab. Make sure to build the website before pushing to GitHub.
+You may also build the website from the build tab. Make sure to build
+the website before pushing to GitHub.
 
-## Website Documents
+## Configuring `_quarto.yml`
 
-Other than the README.md file and tutorials, all the pages with this website were constructed with R Markdown Files.  The three components the R Markdown files needed in the yaml header were the "title", "description", and "site". The "description" line is needed to make the document searchable. The "site" line must follow what is below:
+The `_quarto.yml` file contains all the information needed to build the
+website. Make sure to keep the following lines:
 
-```
-site: distill:distill_website
-```
+    project:
+      type: website
+      output-dir: docs
+      render: 
+        - README.qmd
+        - index.qmd
+        - about.qmd
+        - hpcc.qmd
+        - python_tutorials.qmd
+        - r_tutorials.qmd
+        - submission.qmd
 
-## Configuring `_site.yml`
+These lines tells Quarto how to build the website. The `output-dir`
+indicates where to put the built website, and `render` indicates which
+files need to be built. If any new files need to be built, add them to
+the `render` section.
 
-The `_site.yml` file contains all the information needed to build the website. Make sure to keep the following lines:
+## Tips for Building Website
 
-```
-base_url: https://ucrgradstat.github.io/stat_comp
-output_dir: "docs"
-```
-These lines ensure the website is build popularly. Additionally, make sure to keep the `.nojekyll` in the repository.
+-   Make sure to have `README.html`
 
+-   Use `.gitignore` to ignore cache folders from files
 
-## Tips for Building Website 
-
-- Make sure to have `README.html`
-
-- Use `.gitignore` to ignore cache folders from R Markdown files
-
-- Use `theme.css` to change the appearance of the website
+-   Use `theme.css` to change the appearance of the website
 
 ## Tutorials
 
-The tutorials can be any format. However, to host it on the website, an html file is needed. If students submit an R Markdown file, compile it and use the html file.
-
-
+The tutorials can be any format. However, to host it on the website, an
+html file is needed. If anyone submits an R Markdown file, compile it
+and use the html file.
