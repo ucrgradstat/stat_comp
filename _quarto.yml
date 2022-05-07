@@ -14,9 +14,6 @@ website:
   navbar:
     background: primary
     right:
-      - href: index.qmd
-        text: Home
-      - about.qmd
       - hpcc.qmd
       - text: "R"
         href: r_tutorials.qmd
@@ -25,7 +22,7 @@ website:
       - submission.qmd
       - text: "STAT GSA"
         href: https://ucrgradstat.github.io/
-      - icon: fa-github fa-lg
+      - icon: github
         href: https://github.com/ucrgradstat/stat_comp
       
 
@@ -34,6 +31,6 @@ format:
     theme: cosmo
     css: styles.css
 
-exclude: ["hpcc/*_cache", "r_tutorials/RMarkdown.Rmd"]
+exclude: ["hpcc/*_cache"]
 editor: visual
 
