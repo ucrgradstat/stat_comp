@@ -6,3 +6,4 @@ vendor
 .Rproj.user
 hpcc/*_cache
 .Rhistory
+/.quarto/

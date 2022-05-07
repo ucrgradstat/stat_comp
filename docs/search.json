@@ -1,62 +1,268 @@
-{
-  "articles": [
-    {
-      "path": "about.html",
-      "title": "About",
-      "description": "This website provides different tutorials for your computing needs. This website is maintained by UCR's Department of Statistics Graduate Student Association. All tutorials submitted to the website were created by students who wanted to make it easier for the next person to learn about a different topic. For more information about the tutorials, please email us at ucr.grad.stat@gmail.com.\n",
-      "author": [],
-      "contents": "\n\n\n\n",
-      "last_modified": "2021-02-26T16:32:10-08:00"
-    },
-    {
-      "path": "hpcc.html",
-      "title": "HPCC",
-      "description": "Here is a list of tutorials for UCR's High-Performance Computing Cluster (HPCC).\n",
-      "author": [],
-      "date": "`r Sys.Date()`",
-      "contents": "\nParallel Programming in parallel\nHere is an introduction tutorial on how to use the parallel package in R.\nDOCS\nParallel Programming in batchtools\nHere is an introduction tutorial on how to use the batchtools package in R.\nDOCS\n\n\n\n",
-      "last_modified": "2021-02-26T16:32:11-08:00"
-    },
-    {
-      "path": "index.html",
-      "title": "Welcome!",
-      "author": [],
-      "contents": "\nWe hope you find the tutorials provided by the graduate students informative! If you have any questions, please feel free to email us at ucr.grad.stat@gmail.com.\nUCR Statistics Graduate Student Association\nVisit our website for more information about what the UCR Statistics GSA is doing.\nucrgradstat.github.io\nSubmitting Tutorials\nIf there is no tutorials for an issue you are facing, we encourage you to ask faculty for help. Once you resolved your issue, we encourage you to write and submit a tutorial, so the next student will have an easier time when facing your issue. For submitting a tutorial, please read the following page: Submissions.\n\n\n\n",
-      "last_modified": "2021-02-26T16:32:11-08:00"
-    },
-    {
-      "path": "python_tutorials.html",
-      "title": "Python Tutorials",
-      "description": "This page contains information on different Python topics.\n",
-      "author": [],
-      "date": "`r Sys.Date()`",
-      "contents": "\nThere are currently no tutorials on Python. If you would like to submit a python tutorial, please let us know.\n\n\n\n",
-      "last_modified": "2021-02-26T16:32:12-08:00"
-    },
-    {
-      "path": "r_tutorials.html",
-      "title": "R Tutorials",
-      "description": "This page contains information on different R topics.\n",
-      "author": [],
-      "date": "`r Sys.Date()`",
-      "contents": "\nParallel Programming\nHere is a tutorial on how to use the parallel package in R.\nDOCS\nR Markdown\nHere is a document that provides the basics of R Markdown. Download the RMD and BIB file if you wish to compile it yourself. The PDF File shows how the RMD file should compile to a pdf.\nRMD | PDF | BIB\n\n\n\n",
-      "last_modified": "2021-02-26T16:32:12-08:00"
-    },
-    {
-      "path": "README.html",
-      "author": [],
-      "contents": "\nStatistical Computing Website Repository\nThis Repository contains all the files to construct the website: ucrgradstat.github.io/stat_comp/\nBuilding the Website\nThe website is a collection of R Markdown files\nWebsite Documents\nOther than the README.md file and tutorials, all the pages with this website were constructed with R Markdown Files. The three components the R Markdown files needed in the yaml header were the “title”, “description”, and “site”. The “description” line is needed to make the document searchable. The “site” line must follow what is below:\nsite: distill:distill_website\nTutorials\nThe tutorials can be any format. However, to host it on the website, an html file is needed. If students submit an R Markdown file, compile it and use the html file.\n\n\n",
-      "last_modified": "2021-02-26T16:32:12-08:00"
-    },
-    {
-      "path": "submission.html",
-      "title": "Submission",
-      "description": "This website was built by graduate students to help each other learn about computing. Completing a graduate school is tough, and learning how to code or use certain software makes it harder. Our goal is to provide tutorials that make it easier to learn statistical computing.\n\nGraduate students have volunteered their time to create these tutorials. However, there may be missing topics. Therefore, if learn something new that is not on the website, we encourage you to write a tutorial on how to do it. We would gladly host it on this website. Additionally, we will certainly give you credit for your work. Just follow the guidelines below and send us an email to ucr.grad.stat@gmail.com. With your help, this website will benefit everyone.\n",
-      "author": [],
-      "date": "`r Sys.Date()`",
-      "contents": "\nGuidelines\nYou are welcome to create the tutorial in any way you want. Our only requirement is that the tutorial has an html file that we can use for the website. You may also submit an R Markdown file and we will knit the document into an html file.\nIf you choose to provide data for your tutorial, please make sure the that data is publicly available. We recommend that you simulate your own data to prevent any issues. Additionally, the smaller the data set, the better.\nYou may also submit a YouTube video for your tutorial. All you need to do is provide the link to your video.\nLastly, make sure you cite any work you use.\nIf you need any help, please feel free to email us at ucr.grad.stat@gmail.com.\nRemoving A Tutorial\nIf you wish to no longer have your tutorial on this website, please email us and we will gladly remove it.\n\n\n\n",
-      "last_modified": "2021-02-26T16:32:12-08:00"
-    }
-  ],
-  "collections": []
-}
+[
+  {
+    "objectID": "about.html",
+    "href": "about.html",
+    "title": "About",
+    "section": "",
+    "text": "This website provides different tutorials for your computing needs. This website is maintained by UCR’s Department of Statistics Graduate Student Association. All tutorials submitted to the website were created by students who wanted to make it easier for the next person to learn about a different topic. For more information about the tutorials, please email us at ucr.grad.stat@gmail.com."
+  },
+  {
+    "objectID": "submission.html",
+    "href": "submission.html",
+    "title": "Submissions",
+    "section": "",
+    "text": "Graduate students have volunteered their time to create these tutorials. However, there may be missing topics. Therefore, if learn something new that is not on the website, we encourage you to write a tutorial on how to do it. We would gladly host it on this website. Additionally, we will certainly give you credit for your work. Just follow the guidelines below and send us an email to ucr.grad.stat@gmail.com. With your help, this website will benefit everyone.\n\nGuidelines\nYou are welcome to create the tutorial in any way you want. Our only requirement is that the tutorial has an html file that we can use for the website. You may also submit an R Markdown file and we will knit the document into an html file.\nIf you choose to provide data for your tutorial, please make sure the that data is publicly available. We recommend that you simulate your own data to prevent any issues. Additionally, the smaller the data set, the better.\nYou may also submit a YouTube video for your tutorial. All you need to do is provide the link to your video.\nLastly, make sure you cite any work you use.\nIf you need any help, please feel free to email us at ucr.grad.stat@gmail.com.\n\n\nRemoving A Tutorial\nIf you wish to no longer have your tutorial on this website, please email us and we will gladly remove it."
+  },
+  {
+    "objectID": "r_tutorials.html",
+    "href": "r_tutorials.html",
+    "title": "R Tutorials",
+    "section": "",
+    "text": "This page contains information on different R topics."
+  },
+  {
+    "objectID": "r_tutorials.html#parallel-programming",
+    "href": "r_tutorials.html#parallel-programming",
+    "title": "R Tutorials",
+    "section": "Parallel Programming",
+    "text": "Parallel Programming\nHere is a tutorial on how to use the parallel package in R.\nDOCS"
+  },
+  {
+    "objectID": "r_tutorials.html#r-markdown",
+    "href": "r_tutorials.html#r-markdown",
+    "title": "R Tutorials",
+    "section": "R Markdown",
+    "text": "R Markdown\nHere is a document that provides the basics of R Markdown. Download the RMD and BIB file if you wish to compile it yourself. The PDF File shows how the RMD file should compile to a pdf.\nRMD | PDF | BIB"
+  },
+  {
+    "objectID": "python_tutorials.html",
+    "href": "python_tutorials.html",
+    "title": "Python Tutorials",
+    "section": "",
+    "text": "There are currently no tutorials on Python. If you would like to submit a python tutorial, please let us know."
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html",
+    "href": "hpcc/batchtools_notebook.html",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "",
+    "text": "R is designed to only use one cpu (or core) when running tasks. However, you may have access to a computer cluster1 that allows you to access more RAM and cpus. The use of more than one cpu is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the batchtools package and utilizing more cores in a cluster.\nThis tutorial is built off the information provided by UCR’s High Performance Computing Center tutorial of batchtools package. This tutorial uses a simulation study to show you the power of batchtools. For more information visit their help documentation for batchtools.\nThis tutorial is meant to be run on the HPCC cluster at UCR. You will need an account to the HPCC cluster. If you are a graduate student in UCR’s Statistics Department, contact the UCR Statistics Graduate Student Association to gain access.\nThis tutorial conducts different simulation scenarios to be submitted as jobs. It requires an amount of set up to be effective. There is an an R script that you can use that may provide better insight on using batchtools. You can access R script here"
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html#files",
+    "href": "hpcc/batchtools_notebook.html#files",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "Files",
+    "text": "Files\nBefore you begin, download these files to the directory you are working with. The slurm.tmpl file provides information to the slurm scheduler. The .batchtools.conf.R file tells R to create a cluster function for slurm. The period in front of .batchtools.conf.R will hide the file in your directory. It is there, it is just not displayed.\n\ndownload.file(\"https://bit.ly/3gZJBsy\", \"slurm.tmpl\")\ndownload.file(\"https://bit.ly/3nvSNHA\", \".batchtools.conf.R\")"
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html#packages",
+    "href": "hpcc/batchtools_notebook.html#packages",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "Packages",
+    "text": "Packages\nYou will need to use 2 R packages: RenvModule and batchtools. The RenvModule2 package provides the tools to interact with modules in the cluster. The batchtools package provides the tools to parallelize your code. Both are needed. For this tutorial, you will also need to have the mvtrnorm package installed.\n\nlibrary(RenvModule)\nlibrary(batchtools)\nlibrary(mvtnorm)"
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html#functions",
+    "href": "hpcc/batchtools_notebook.html#functions",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "Functions",
+    "text": "Functions\n\nmodule()\nThe module() function loads different modules into the R environment.\n\n\nmakeRegistry()\nThe makeRegistry() function creates a registry for batchtools. You can think of the registry as the communication center for R, your functions, and the cluster. It will store everything in a directory. The makeRegistry() function needs the argument file.dir argument, the location to store the registry, and conf.file=.batchtools.conf.R. Store the output from the function into an R object.\n\n\nbatchMap()\nThe batchMap() function creates jobs to be submitted from a cluster. The first argument, fun, is the user-generated function and the additional arguments are for the user-generated function. The batchMap() function will produce a data frame of ids for each job as an output. The job ids are the numeric index of each element in a list/vector.\n\n\nsubmitJobs()\nThe submitJobs() function will submit jobs to the cluster. It will need output from the batchMap() function as the first argument. Additionally, it will need the location og the registry (reg argument), from a stored R object, and a list of resources (resources argument).\n\n\ngetStatus()\nThe getStatus() function checks the status of your jobs and provides information of each jobs state.\n\n\nkillJobs()\nThe killJobs() function will kill all your jobs. This is equivalent to scancel.\n\n\nloadResult()\nThe loadResult() function will load the results of each job. You will need to specify the id to load the results.\n\n\nclearRegistry()\nThe clearRegistry() function will delete files in the registry to re-submit jobs.\n\n\nremoveRegistry()\nThe removeRegistry() function will delete the entire registry."
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html#simulation-parameters",
+    "href": "hpcc/batchtools_notebook.html#simulation-parameters",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "Simulation Parameters",
+    "text": "Simulation Parameters\nThe simulation parameters will be stored in a list. Each element in the list will contain information of the about the simulation and the formula for the lm() function.\n\nsim_list <- list(list(N = 500, # Number of Data sets\n                      nobs = 200, # Number of observations\n                      beta = c(20, 30), # beta parameters\n                      xmeans = c(0), # Means for predictors\n                      xsigs = diag(rep(1, 1)), # Variance for predictor\n                      sigma = 3, # Variance for error term\n                      formula = y ~ x), #Formula\n                 list(N = 500, # Number of Data sets\n                      nobs = 200, # Number of observations\n                      beta = c(5, -8, 2), # beta parameters\n                      xmeans = c(-2, 0), # Means for predictors\n                      xsigs = diag(rep(1, 2)), # Variance for predictor\n                      sigma = 3, # Variance for error term\n                      formula = y ~ x.1 + x.2), #Formula\n                 list(N = 500, # Number of Data sets\n                      nobs = 200, # Number of observations\n                      beta = c(5, 4, -5, -3), # beta parameters\n                      xmeans = c(-2, 0, 2), # Means for predictors\n                      xsigs = diag(rep(1, 3)), # Variance for predictor\n                      sigma = 3, # Variance for error term\n                      formula = y ~ x.1 + x.2 + x.3),  #Formula\n                 list(N = 500, # Number of Data sets\n                      nobs = 200, # Number of observations\n                      beta = c(5, 4, -5, -3, 6), # beta parameters\n                      xmeans = c(-2, 0, 2, 8), # Means for predictors\n                      xsigs = diag(rep(1, 4)), # Variance for predictor\n                      sigma = 3, # Variance for error term\n                      formula = y ~ x.1 + x.2 + x.3 + x.4) #Formula\n)"
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html#simulation-functions",
+    "href": "hpcc/batchtools_notebook.html#simulation-functions",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "Simulation Functions",
+    "text": "Simulation Functions\nThe function below generates 1 data set from a simulation scenario above and returns a data frame.\n\ndata_set_sim <- function(seed, nobs, beta, sigma, xmeans, xsigs){ # Simulates the data set\n  set.seed(seed) # Sets a seed\n  xrn <- rmvnorm(nobs, mean = xmeans, sigma = xsigs) # Simulates Predictors\n  xped <- cbind(rep(1,nobs),xrn) # Creating Design Matrix\n  y <- xped %*% beta + rnorm(nobs ,0, sigma) # Simulating Y\n  df <- data.frame(x=xrn, y=y) # Creating Data Frame\n  return(df)\n}\n\nThe function needs the following arguments:\n\nseed: the value to set for the random number generator\nnobs: number of observations\nbeta: a vector specifying the true values for the regression coefficients (\\(\\beta_0\\), \\(\\beta_1\\), \\(\\beta_2\\), \\(\\beta_3\\))\nsigma: the variance for the model above\nxmeans: a vector of means used to generate the values for \\(X_1\\), \\(X_2\\), and \\(X_3\\)\nxsigs: a matrix for the covariance for \\(X_1\\), \\(X_2\\), and \\(X_3\\)\n\nThe function below generates the data for a simulation scenario and returns a list of data (in a list) and the formula to assess the data for the lm() function\n\ndata_sim <- function(data){ # Simulates the data set\n  df_list <- lapply(1:data$N, data_set_sim,\n                    nobs = data$nobs, beta = data$beta, sigma = data$sigma,\n                    xmeans = data$xmeans, xsigs = data$xsigs)\n  return(list(df_list = df_list, formula = data$formula))\n}\n\nThe function below takes the data generated from the data_sim() and fits a linear regression model. The function wraps around the lm() function and returns estimated regression coefficients."
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html#function",
+    "href": "hpcc/batchtools_notebook.html#function",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "Function",
+    "text": "Function\nThe function below process the data and implements the lm() to the data. This is the function that will be used in batchtools. First, the function obtains the number of data sets it will process. Second, it creates the lm_coef() function which applies the lm() function to the data3. Third, a parallel processor is applied to go through the data 4. Lastly, the results are converted to a matrix and returned as the output.\n\nparallel_lm<-function(data){\n  ll<-length(data$df_list)\n  \n  lm_coef <- function(formula, data){ # Applying a Ordinary Least Squares \n    lm_res <- lm(formula, data = data) # Find OLS Estimates\n    return(as.vector(coef(lm_res)))# Obtaining \n  }\n  \n  results <- parallel::mclapply(data$df_list, lm_coef, formula = data$formula, # Applies lm_coef \n                                mc.cores = 8) # Using the parallel package to parallelize \n  \n  mat<-matrix(unlist(results), nrow = ll, byrow = T)\n  return(mat)\n}"
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html#execution",
+    "href": "hpcc/batchtools_notebook.html#execution",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "Execution",
+    "text": "Execution\n\nModules\nLoad the slurm module into R.\n\nmodule('load','slurm')\n\n\n\nRegistry\nCreate a registry and store it in an R object.\n\nreg <- makeRegistry(file.dir=\"myregdir\", conf.file=\".batchtools.conf.R\")\n\n\n\nResources\nCreate a list with the following elements and store it in an R object:\n\npartition: The cluster partition to use (\"stastdept\")\nwalltime: The time to run the job in seconds (120)\nntasks: The number of tasks to complete (1)\nncpus: The number of cpus to complete the task (8)\nmemory: How much memory is being used in MB (1024)\n\n\nres <- list(partition=\"statsdept\", walltime=120, ntasks=1, ncpus=8, memory=1024)\n\n\n\nBatch Jobs Prep\nUse to batchMap() function to create the jobs that need to be submitted into the cluster and store it an R object.\n\nsubmission_id <- batchMap(parallel_lm, data = standard_data)\n\n\n\nSubmitting Jobs\nSubmit the jobs using the submitJobs() and store it in an R object.\n\ndone <- submitJobs(submission_id, reg=reg, resources=res)\n\n\n\nGetting Job Status\nUse the getStatus() function to check on the status of your jobs.\n\ngetStatus()"
+  },
+  {
+    "objectID": "hpcc/batchtools_notebook.html#error-reached-submission-limit-or-resources-limit",
+    "href": "hpcc/batchtools_notebook.html#error-reached-submission-limit-or-resources-limit",
+    "title": "Parallel Computing in R with batchtools",
+    "section": "Error: Reached Submission Limit or Resources Limit",
+    "text": "Error: Reached Submission Limit or Resources Limit\nIf You receive an error about reaching limits, do not worry about it. The slurm system will take care of this. Type the following below to cancel all your jobs and try again.\n\nsqueue --user $USER --noheader --format '%i' | xargs scancel"
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html",
+    "href": "hpcc/parallel_notebook.html",
+    "title": "Parallel Computing in R with parallel",
+    "section": "",
+    "text": "R is designed to only use one cpu (or core) when running tasks. However, a computer may have more than one core that can be used to run tasks. The use of more than one core is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the parallel package and utilizing more cores in a computer.\nFor more information about parallel processing in R, visit the following sites:\n\nhttps://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html\nhttps://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html\nhttps://psu-psychology.github.io/r-bootcamp-2018/talks/parallel_r.html"
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#forking",
+    "href": "hpcc/parallel_notebook.html#forking",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Forking",
+    "text": "Forking\nThe forking method is implemented when using the mc*() functions. Below is a list of pros and cons:\n\nPros:\n\nEasier to implement\nYour environment is copied to the cpu\nHas the potential to use less resources\nWraps USER function with the try() function\n\n\n\nCons:\n\nOnly works on POSIX systems (Mac or Linux)\nDoes not work with multiple nodes1\nMay cause cross-contamination because the environment may change2\n\nGenerally speaking, R copies its environment to a cpu and runs the process."
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#socket",
+    "href": "hpcc/parallel_notebook.html#socket",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Socket",
+    "text": "Socket\nThe socket method is implemented when using the par*() functions. Below is a list of pros and cons:\n\nPros:\n\nWorks on any system (Windows, Mac, and Linux)\nEach process is unique\nNo cross-contamination\nCan be used when multiple nodes are involved\n\n\n\nCons:\n\nThe entire environment (including loaded functions) must be specified\nMore resource intensive\ntry() function is not implemented, when one cpu fails, the entire cluster fails\n\nGenerally speaking, R creates a new environment on each cpu."
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#where-to-parallelize",
+    "href": "hpcc/parallel_notebook.html#where-to-parallelize",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Where to parallelize?",
+    "text": "Where to parallelize?\nParallel computing requires repetitive tasks to be independent of each other. The results from one task must not be used as input for another task. Therefore, identify blocks of code where repetition is involved. This can be either for loops or *apply() functions.\nOther locations to parallelize your code are bottlenecks. Having multiple cores processing bottlenecks helps speed up your code. For more information about bottlenecks or code efficiency, visit the Advanced R website: adv-r.hadley.nz.\nIdentifying the location to parallelize may be challenging due to so many options. My advice is to try many things and see what provides the best result."
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#simulation-functions",
+    "href": "hpcc/parallel_notebook.html#simulation-functions",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Simulation Functions",
+    "text": "Simulation Functions\nThe function below generates data from the model above and returns a data frame.\n\ndata_sim <- function(seed, nobs, beta, sigma, xmeans, xsigs){\n  set.seed(seed)\n  xrn <- rmvnorm(nobs, mean = xmeans, sigma = xsigs)\n  xped <- cbind(rep(1,nobs),xrn)\n  y <- xped %*% beta + rnorm(nobs ,0, sigma)\n  df <- data.frame(x=xrn, y=y)\n  return(df)\n}\n\nThe function needs the following arguments:\n\nseed: the value to set for the random number generator\nnobs: number of observations\nbeta: a vector specifying the true values for the regression coefficients (\\(\\beta_0\\), \\(\\beta_1\\), \\(\\beta_2\\), \\(\\beta_3\\))\nsigma: the variance for the model above\nxmeans: a vector of means used to generate the values for \\(X_1\\), \\(X_2\\), and \\(X_3\\)\nxsigs: a matrix for the covariance for \\(X_1\\), \\(X_2\\), and \\(X_3\\)\n\nThe function below takes the data generated from the data_sim() and fits a linear regression model. The function wraps around the lm() function and returns estimated regression coefficients.\n\nparallel_lm <- function(data){\n  lm_res <- lm(y ~ x.1 + x.2 + x.3, data = data)\n  return(coef(lm_res))\n}\n\n\nLoading R Packages\nFor this tutorial, you will need the parallel and mvtnorm packages.\n\nlibrary(parallel)\nlibrary(mvtnorm)\n\n\n\nSetting Parameters\n\nN <- 10000\nnobs <- 200\nbeta <- c(5, 4, -5, -3)\nxmeans <- c(-2, 0, 2)\nxsigs <-diag(rep(1, 3))\nsig <- 3\n\n\n\nSimulating Data\n\nstart <- Sys.time()\nparallel_data <- lapply(c(1:N), data_sim,\n                          nobs = nobs, beta = beta, sigma = sig, xmeans = xmeans, xsigs = xsigs)\nSys.time()-start\n\nTime difference of 2.546581 secs"
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#detecting-cores",
+    "href": "hpcc/parallel_notebook.html#detecting-cores",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Detecting Cores",
+    "text": "Detecting Cores\nThe parallel package has a function that can detect the number of cores available on your computer. Use the detectCores() function to find how many cpus your computer has3.\n\ndetectCores()\n\n[1] 8\n\n\nFor this example, I will use 8 cpus. You can change the number of cpus based on your computer.\n\nncores <- 8"
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#using-lapply",
+    "href": "hpcc/parallel_notebook.html#using-lapply",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Using lapply()",
+    "text": "Using lapply()\nBefore we parallelize, use the lapply() function to run the simulation on one cpu.\n\nstart <- Sys.time()\nlapply_results <- lapply(parallel_data, parallel_lm)\n(lapply_time <- Sys.time()-start)\n\nTime difference of 4.205292 secs"
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#using-mclapply",
+    "href": "hpcc/parallel_notebook.html#using-mclapply",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Using mclapply()",
+    "text": "Using mclapply()\nThe easiest way to parallelize is to use the mclapply() function. All you need to do is change the lapply() function to mclapply() and add the argument mc.cores =  ncores as the last argument. The argument mc.cores specifies the number of cores for parallelization.\n\nstart <- Sys.time()\nmclapply_results <- mclapply(parallel_data, parallel_lm, mc.cores = ncores)\n(mclapply_time <- Sys.time()-start)\n\nTime difference of 1.333008 secs"
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#using-parlapply",
+    "href": "hpcc/parallel_notebook.html#using-parlapply",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Using parLapply()",
+    "text": "Using parLapply()\n\nFunctions\nUsing parLapply() function requires setting up the cluster. There are two functions needed to set up the cluster: makeCluster() and clusterExport(). Once your analysis is finished, you will need to close the cluster using the stopCluster() function.\n\nmakeCluster()\nThe makeCluster() function sets up the cluster in your computer. You only need to specify the number of cores to use (ncores) and store it in an R object (cl)\n\n\nclusterExport()\nThe clusterExport() function is needed to export user-created functions, package functions, or data to the cluster. You will need to specify the cluster (cl) to export the information and the name of the functions or data in a character vector.\n\n\nparLapply()\nThe parLapply() is the parallel computing component. It is used the same way as the lapply() function. The only difference is that you will need to specify the cluster (cl) as the first argument. The second argument goes as the lapply() function.\n\n\nstopCluster()\nThe stopCluster() function closes the cluster down.\n\n\n\nImplementation\nThe code below implements the parLapply() function:\n\nstart <- Sys.time()\ncl <- makeCluster(ncores)\nclusterExport(cl, c(\"parallel_lm\"))\nparLapply_results<-parLapply(cl,parallel_data,parallel_lm)\nstopCluster(cl)\n(parLapply_time <- Sys.time()-start)\n\nTime difference of 1.748807 secs"
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#speed-gains",
+    "href": "hpcc/parallel_notebook.html#speed-gains",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Speed Gains",
+    "text": "Speed Gains\nWhen parallelizing your code, the speed gains may not be noticeable. When using the parallel package, R assigns elements of a list or vector into different cores, known as overhead, which takes time. The time it takes to load the data may be longer than processing the data. Therefore, it may not be faster or take longer than using the *apply() functions. It may be best to use one core or split up the data on your own. However, when processing your data takes much longer than your overhead time, the speed gains are noticeable."
+  },
+  {
+    "objectID": "hpcc/parallel_notebook.html#hyper-threading",
+    "href": "hpcc/parallel_notebook.html#hyper-threading",
+    "title": "Parallel Computing in R with parallel",
+    "section": "Hyper-threading",
+    "text": "Hyper-threading\nCertain computer processors have cores that are multi-threaded (hyper-threading). This means the computer views 1 physical core as 2 logical cores. While you certainly specify double the number of physical cores for your cluster, the speed gains is not equivalent as using proper physical cores. In my experience, it is not worth using the logical cores and just specify the number of physical cores in your computer."
+  },
+  {
+    "objectID": "hpcc.html",
+    "href": "hpcc.html",
+    "title": "HPCC",
+    "section": "",
+    "text": "Here is a list of tutorials for UCR’s High-Performance Computing Cluster (HPCC)."
+  },
+  {
+    "objectID": "hpcc.html#parallel-programming-in-parallel",
+    "href": "hpcc.html#parallel-programming-in-parallel",
+    "title": "HPCC",
+    "section": "Parallel Programming in parallel",
+    "text": "Parallel Programming in parallel\nHere is an introduction tutorial on how to use the parallel package in R.\nDOCS"
+  },
+  {
+    "objectID": "hpcc.html#parallel-programming-in-batchtools",
+    "href": "hpcc.html#parallel-programming-in-batchtools",
+    "title": "HPCC",
+    "section": "Parallel Programming in batchtools",
+    "text": "Parallel Programming in batchtools\nHere is an introduction tutorial on how to use the batchtools package in R.\nDOCS"
+  },
+  {
+    "objectID": "r_tutorials/RMarkdown.html",
+    "href": "r_tutorials/RMarkdown.html",
+    "title": "R Markdown Guide",
+    "section": "",
+    "text": "This document contains an introduction on R Markdown files and creating PDF files. For more information, go to https://bookdown.org/yihui/rmarkdown/ for a complete guide on R Markdown. Other useful materials can be found on RStudio’s website: https://rmarkdown.rstudio.com/lesson-1.html.\nBefore reading this document, download the Rmd, bib, and PDF files. Reading the Rmd file and PDF file simultaneously provides a better context on the syntax and formatting for an Rmd file. The syntax in an Rmd file may be difficult to understand, so looking at the Rmd file simultaneously may clarify the explanations. Lastly, to knit the R Markdown file, make sure LaTex, formatR, and xtable are installed. Additionally, have the Example.bib file located in the same folder as the Rmd File. More information on each item is provided below."
+  },
+  {
+    "objectID": "r_tutorials/RMarkdown.html#what-is-r-markdown",
+    "href": "r_tutorials/RMarkdown.html#what-is-r-markdown",
+    "title": "R Markdown Guide",
+    "section": "What is R Markdown?",
+    "text": "What is R Markdown?\nR Markdown is a file type used to create technical reports while including both R code and output in a document. An Rmd file is just a really fancy R Script containing extra capabilities. R Markdown also allows for citations, footnotes, mathematical expressions, links, and many more. Once the document is finished, it can be rendered to a word file, pdf, or html file."
+  },
+  {
+    "objectID": "r_tutorials/RMarkdown.html#anatomy-of-r-markdown",
+    "href": "r_tutorials/RMarkdown.html#anatomy-of-r-markdown",
+    "title": "R Markdown Guide",
+    "section": "Anatomy of R Markdown",
+    "text": "Anatomy of R Markdown\nThere are three main components in an R Markdown file: the YAML header, R code, and basic text.\nThe YAML header contains information on how to render the document. It is usually located at the beginning of the document. The YAML header is usually surrounded by 3 dashes (---) above and below it. For starters, the YAML header will contain a ‘title’, ‘author’, ‘date’, and ‘output’ line. Visit the R Markdown website for more information.\nThe R code is located in a block known as chunks. A chunk tells RStudio to read the next lines as code. A chunk begins with three back ticks followed by {r} and ends with three back ticks. Everything in between is R code. A chunk with R code will render like below:\n\nmean(mtcars$mpg)\n\n[1] 20\n\n\nNotice the chunk includes the code in a block followed by the output from the console.\nThe last component of an R Markdown document is the text. Just write anywhere in the document, and it will be rendered as is."
+  },
+  {
+    "objectID": "r_tutorials/RMarkdown.html#chunk-options",
+    "href": "r_tutorials/RMarkdown.html#chunk-options",
+    "title": "R Markdown Guide",
+    "section": "Chunk Options",
+    "text": "Chunk Options\nThe code chunks in R have options that will alter how the code or the output is rendered. The chunk options can be set either globally to affect the entire R Markdown document or locally to affect only an individual chunk. For more information about chunk options visit https://yihui.name/knitr/options/\n\nGlobal Chunk Options\nTo set up chunk options globally, create a chunk at the beginning and use the knitr::opts_chunk$set() function to set chunk options.\n\nknitr::opts_chunk$set(cache=T)\n\nA couple of recommended chunk options set globally are cache=T and tidy=T. These options make rendering the document easier. The cache=T option tells RStudio to run the chunk and save the output in an RData file when it is rendered. When re-rendering a document, RStudio will only run chunks that are new or chunks that were altered. All other chunks’ output will be obtained from the RData file. This speeds up the rendering process by not running code that was not altered.\nThe other chunk option is tidy=T. More specifically: tidy.opts=list(width.cutoff=60) and tidy=TRUE. This tells RStudio to prevent code from printing off the page. For example, look at the output of this chunk:\n\n## This comment is designed to show what happens when all your code is in 1 line. This is fine when you are coding, but when you are putting it in a report, it will run off the page.\n\nNotice the comment being printed off the page. Using the options tidy.opts=list(width.cutoff=60) and tidy=TRUE, the chunk is rendered as\n\n## This comment is designed to show what happens when all your code is in 1 line. This is fine when you are coding, but when you are putting it in a report, it will run off the page.\n\nNotice the comment being printed on 4 lines of code instead of 1. The width.cutoff=60 option may need to be adjusted to get all the code one the page. To use this tidy option, install the formatR package once:\n\ninstall.packages(\"formatR\")\n\nTo set these two options as global options, place this in a setup chunk at the beginning of the document.\n\nknitr::opts_chunk$set(cache = T)\nknitr::opts_chunk$set(tidy.opts=list(width.cutoff=60),tidy=TRUE)\n\nNote: Sometimes, the cutoff may stop working and your code is running off the page. To fix this, change the value for the width.cutoff. Then change it back.\nOne last option to include is options(digits=2) This is used for inline code. This is discussed later in the document.\n\n\nLocal Chunk Options\nThere are local chunk options that may be beneficial to put in each individual chunk. Each option is placed in {r} separated by commas.\nOne option is the eval option. When set to FALSE, RStudio will only display the code but not run the line. For example, this chunk contains {r,eval=FALSE}:\n\nmean(mtcars$mpg)\n\nNothing is printed out. When the chunk contains {r,eval=TRUE}:\n\nmean(mtcars$mpg)\n\n[1] 20\n\n\nAnother option is the echo option. When set to FALSE, the code will disappear from the document. This next chunk contains {r,echo=TRUE}:\n\nmean(mtcars$mpg)\n\n[1] 20\n\n\nEverything looks the same. Now the chunk contains {r,echo=FALSE}\n\n\n[1] 20\n\n\nThe R Code disappears.\nThere are chunk options for figures as well. A few options are fig.height, fig.width, fig.align, and fig.cap.\nThis chunk contains {r,fig.height=3.5,fig.width=3.5,fig.align='left'}.\n\nplot(mtcars$mpg,mtcars$drat)\n\n\n\n\n\n\n\n\nThe chunk options tells RStudio to create an image that is 3.5 inches in height and width, and align the image to the left.\nThe following chunk contains {r, fig.height=3.5, fig.width=3.5, fig.align='center', fig.cap=\"\\\\label{fig1}This is a scatter plot of MTCARS' MPG and DRAT\"}.\n\nplot(mtcars$mpg,mtcars$drat)\n\n\n\n\nThis is a scatter plot of MTCARS’ MPG and DRAT\n\n\n\n\nThis figure may be placed on a different page. The chunk contains an additional option: fig.cap=\"\\\\label{fig1}This is a scatter plot of MTCARS' MPG and DRAT\". It adds a caption to the figure. At the beginning of the caption, the option contains \\\\label{fig1}. This labels the plot to be referenced later in the document. Figure \\(\\ref{fig1}\\) can be referenced with \\ref{fig1}."
+  },
+  {
+    "objectID": "r_tutorials/RMarkdown.html#formatting",
+    "href": "r_tutorials/RMarkdown.html#formatting",
+    "title": "R Markdown Guide",
+    "section": "Formatting",
+    "text": "Formatting\nR Markdown contain basic formatting capabilities. The use of the # followed by text creates a heading. Using two or more # symbols will create subheadings based on the number of #. A text is italicized by surrounding the text with one asterisk (*italicized*). A text is boldfaced by surrounding it with 2 asterisk (**boldfaced**).\nTo create an unordered list, use the + symbol at the beginning of each line. To create a sub-item, press the tab button twice (4 spaces), then the + symbol. Repeat this method for further sub-items.\n\nFirst Item\nSecond Item\n\nFirst Sub-Item\n\nFirst Sub-Sub-Item\n\nFirst Sub-Sub-Sub-Item\n\n\n\n\nTo created an ordered list, type the number followed by a period for each line. To create sub-lists, press the tab button twice and order them appropriately.\n\nFirst\nSecond\n\nFirst\nSecond\n\nFirst\nSecond\n\n\n\n\nA block quote is created with the > symbol at the beginning of a line.\n\nR Markdown allows a table to be constructed in 2 ways, manually or with the xtable package. A table is manually created by using |, :, and -. The first line contains | and the column names in between. The second line contains |:-|:-| which indicates how the table is aligned. The location of : symbol just tells RStudio about the alignment. Go to the math section for more elaborate examples.\nThe xtable::xtable function creates a table from a dataframe or R object. Here is an example a table using the mtcars dataset.\nprint(xtable::xtable(head(mtcars),caption=\"The MTCARS Dataset\", label=\"mtcarsdata\", digits=1,align=c(\"l\", rep(\"c\",11))),comment = F)\nNotice that Table \\(\\ref{mtcarsdata}\\) is produced easily. Table \\(\\ref{mtcarsdata}\\) is referenced by using the label created in the function and the \\ref{mtcarsdata}. The xtable::xtable() function can be used to create tables from commonly used R functions such as lm(). The xtable requires the print() function and comment=F argument to prevent a note from printing. Additionally, the chunk options results='asis' is needed. To install xtable run the following line:\n\ninstall.packages(\"xtable\")"
+  },
+  {
+    "objectID": "r_tutorials/RMarkdown.html#references",
+    "href": "r_tutorials/RMarkdown.html#references",
+    "title": "R Markdown Guide",
+    "section": "References",
+    "text": "References\nR Markdown contains capabilities to add citations and a bibliography. For example, to cite your textbook (Mendenhall and Sincich 2012), use the @ symbol followed by a citation identifier from the .bib file surrounded by square brackets, [@mendenhallSecondCourseStatistics2012]. To cite your textbook again (2012) without the authors names, use a - sign in front of the @ symbol, [-@mendenhallSecondCourseStatistics2012]. To cite multiple books (Casella and Berger 1990; Rohatgi and Saleh 2015; Resnick 2014; Erich L. Lehmann and Casella 1998; E. L. Lehmann and Romano 2005), add each citation inside the square brackets with the @ symbol and separate them with semicolons, [@casellaStatisticalInference1990; @rohatgiIntroductionProbabilityStatistics2015; @resnickProbabilityPath2014; @lehmannTheoryPointEstimation1998; @lehmannTestingStatisticalHypotheses2005].\nA reference page can be added at the end of your document by adding the following line: # References. R Markdown will automatically add references at the end.\nTo use citations and references, R Markdown needs to know the references. This is done by providing a .bib file containing all the information needed to construct the citations and references. First, save the .bib file in the same folder (directory) as your Rmd file. Then add the line bibliography: Example.bib to the YAML header. Make any changes appropriately to the line, such as the name of the .bib file.\n\nBib File\nThe .bib file is just a normal text file that contains the extension .bib. All you will do is add your references to the file. Open the Example.bib file and notice that it contains a bunch of lines indicating certain things about a reference. Creating a .bib file is tedious. However, there are reference managers that can help. I recommend Zotero. It is an open-source reference manager designed to help with many things. With Zotero, you can import citations easily with their browser extension. Once a citation is in Zotero, you can export your library to a .bib file. That’s it! A couple tips is to check your citations in Zotero and fix them as needed. Importing citations from UCR’s library seem to provide accurate citations. Other online resources may provide weird results."
+  },
+  {
+    "objectID": "r_tutorials/RMarkdown.html#math",
+    "href": "r_tutorials/RMarkdown.html#math",
+    "title": "R Markdown Guide",
+    "section": "Math",
+    "text": "Math\nR Markdown is capable of writing mathematical formulas using LaTeX code. A mathematical symbol can be written inline using single $ signs. For example, $\\alpha$ is viewed as \\(\\alpha\\) in a document. To write mathematical formulas on its own line use either $$ or \\[\\]. For example, $$Y=mX+b$$ is viewed as \\[Y=mX+b\\] or \\[Y=mX+b\\] is viewed as \\[Y=mX+b.\\] The next page contain tables of LaTeX syntax for mathematical symbols.\n\n\nMathematical Notation\n\n\n\nNotation\ncode\n\n\n\n\n\\(x=y\\)\n$x=y$\n\n\n\\(x>y\\)\n$x>y$\n\n\n\\(x<y\\)\n$x<y$\n\n\n\\(x\\geq y\\)\n$x\\geq y$\n\n\n\\(x\\leq y\\)\n$x\\leq y$\n\n\n\\(x^{y}\\)\n$x^{y}$\n\n\n\\(x_{y}\\)\n$x_{y}$\n\n\n\\(\\bar x\\)\n$\\bar x$\n\n\n\\(\\hat x\\)\n$\\hat x$\n\n\n\\(\\tilde x\\)\n$\\tilde x$\n\n\n\\(\\frac{x}{y}\\)\n$\\frac{x}{y}$\n\n\n\\(\\frac{\\partial x}{\\partial y}\\)\n$\\frac{\\partial x}{\\partial y}$\n\n\n\\(x\\in A\\)\n$x\\in A$\n\n\n\\(x\\subset A\\)\n$x\\subset A$\n\n\n\\(x\\subseteq A\\)\n$x\\subseteq A$\n\n\n\\(x\\cup A\\)\n$x\\cup A$\n\n\n\\(x\\cap A\\)\n$x\\cap A$\n\n\n\\(\\{1,2,3\\}\\)\n$\\{1,2,3\\}$\n\n\n\\(\\int_a^bf(x)dx\\)\n$\\int_a^bf(x)dx$\n\n\n\\(\\left\\{\\int_a^bf(x)dx\\right\\}\\)\n$\\left\\{\\int_a^bf(x)dx\\right\\}$\n\n\n\\(\\sum^n_{i=1}x_i\\)\n$\\sum^n_{i=1}x_i$\n\n\n\\(\\prod^n_{i=1}x_i\\)\n$\\prod^n_{i=1}x_i$\n\n\n\\(\\lim_{x\\to0}f(x)\\)\n$\\lim_{x\\to0}f(x)$\n\n\n\\(X\\sim \\Gamma(\\alpha,\\beta)\\)\n$X\\sim \\Gamma(\\alpha,\\beta)$\n\n\n\n\n\n\nGreek Letters\n\n\n\nLetter\nLowercase\nCode\nUppercase\nCode\n\n\n\n\nalpha\n\\(\\alpha\\)\n\\alpha\n–\n–\n\n\nbeta\n\\(\\beta\\)\n\\beta\n–\n–\n\n\ngamma\n\\(\\gamma\\)\n\\gamma\n\\(\\Gamma\\)\n\\Gamma\n\n\ndelta\n\\(\\delta\\)\n\\delta\n\\(\\Delta\\)\n\\Delta\n\n\nepsilon\n\\(\\epsilon\\)\n\\epsilon\n–\n–\n\n\nzeta\n\\(\\zeta\\)\n\\zeta\n–\n–\n\n\neta\n\\(\\eta\\)\n\\eta\n–\n–\n\n\ntheta\n\\(\\theta\\)\n\\theta\n\\(\\Theta\\)\n\\Theta\n\n\niota\n\\(\\iota\\)\n\\iota\n–\n–\n\n\nkappa\n\\(\\kappa\\)\n\\kappa\n–\n–\n\n\nlambda\n\\(\\lambda\\)\n\\lambda\n\\(\\Lambda\\)\n\\Lambda\n\n\nmu\n\\(\\mu\\)\n\\mu\n–\n–\n\n\nnu\n\\(\\nu\\)\n\\nu\n–\n–\n\n\nxi\n\\(\\xi\\)\n\\xi\n\\(\\Xi\\)\n\\Xi\n\n\npi\n\\(\\pi\\)\n\\pi\n\\(\\Pi\\)\n\\pi\n\n\nrho\n\\(\\rho\\)\n\\rho\n–\n–\n\n\nsigma\n\\(\\sigma\\)\n\\sigma\n\\(\\Sigma\\)\n\\Sigma\n\n\ntau\n\\(\\tau\\)\n\\tau\n–\n–\n\n\nupsilon\n\\(\\upsilon\\)\n\\upsilon\n\\(\\Upsilon\\)\n\\Upsilon\n\n\nphi\n\\(\\phi\\)\n\\phi\n\\(\\Phi\\)\n\\Phi\n\n\nchi\n\\(\\chi\\)\n\\chi\n–\n–\n\n\npsi\n\\(\\psi\\)\n\\psi\n\\(\\Psi\\)\n\\Psi\n\n\nomega\n\\(\\omega\\)\n\\omega\n\\(\\Omega\\)\n\\Omega\n\n\nvarepsilon\n\\(\\varepsilon\\)\n\\varepsilon\n–\n–"
+  },
+  {
+    "objectID": "r_tutorials/RMarkdown.html#rendering-a-document",
+    "href": "r_tutorials/RMarkdown.html#rendering-a-document",
+    "title": "R Markdown Guide",
+    "section": "Rendering a Document",
+    "text": "Rendering a Document\nAn R Markdown can be rendered into either an html file, pdf document or word document. Rendering the R Markdown to an html file or word document can be easily done using the knit button above. However, rendering the R Markdown file to a pdf document requires LaTeX to be installed. There are two methods to install LaTeX: from the LaTeX website or from R. I recommend installing the full LaTeX distribution from the https://www.latex-project.org/get/. This provides you with everything you may need. You can also install it from R:\n\ninstall.packages(\"tinytex\")\ntinytex::install_tinytex()\n\nYou will only need to run these lines of code once and then you can render pdf documents easily.\n\nTips\n\nRender your document often so it easier to identify problems with rendering"
+  },
+  {
+    "objectID": "index.html",
+    "href": "index.html",
+    "title": "STAT COMP",
+    "section": "",
+    "text": "UCR Statistics Graduate Student Association\nVisit our website for more information about what the UCR Statistics GSA is doing.\nucrgradstat.github.io\nSubmitting Tutorials\nIf there is no tutorials for an issue you are facing, we encourage you to ask faculty for help. Once you resolved your issue, we encourage you to write and submit a tutorial, so the next student will have an easier time when facing your issue. For submitting a tutorial, please read the following page: Submissions."
+  }
+]

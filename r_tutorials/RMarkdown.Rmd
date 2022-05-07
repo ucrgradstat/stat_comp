@@ -1,13 +1,12 @@
 ---
 title: "R Markdown Guide"
 author: "Isaac Quintanilla Salinas"
-date: "`r Sys.Date()`"
+date: "12-20-2020"
 output: pdf_document
 fontsize: 12pt
 geometry: margin=1in
 spacing: double
 bibliography: Example.bib
-layout: NULL
 ---
 
 ```{r setup, include=FALSE}
@@ -229,31 +228,31 @@ R Markdown is capable of writing mathematical formulas using LaTeX code. A mathe
 
 ### Greek Letters
 
-| Letter     |   Lowercase   |      Code     |  Uppercase |    Code    |
+| Letter     |   Lowercase   |     Code      | Uppercase  |    Code    |
 |:-----------|:-------------:|:-------------:|:----------:|:----------:|
-| alpha      |    $\alpha$   |    `\alpha`   |     --     |     --     |
+| alpha      |   $\alpha$    |   `\alpha`    |     --     |     --     |
 | beta       |    $\beta$    |    `\beta`    |     --     |     --     |
-| gamma      |    $\gamma$   |    `\gamma`   |  $\Gamma$  |  `\Gamma`  |
-| delta      |    $\delta$   |    `\delta`   |  $\Delta$  |  `\Delta`  |
-| epsilon    |   $\epsilon$  |   `\epsilon`  |     --     |     --     |
+| gamma      |   $\gamma$    |   `\gamma`    |  $\Gamma$  |  `\Gamma`  |
+| delta      |   $\delta$    |   `\delta`    |  $\Delta$  |  `\Delta`  |
+| epsilon    |  $\epsilon$   |  `\epsilon`   |     --     |     --     |
 | zeta       |    $\zeta$    |    `\zeta`    |     --     |     --     |
-| eta        |     $\eta$    |     `\eta`    |     --     |     --     |
-| theta      |    $\theta$   |    `\theta`   |  $\Theta$  |  `\Theta`  |
+| eta        |    $\eta$     |    `\eta`     |     --     |     --     |
+| theta      |   $\theta$    |   `\theta`    |  $\Theta$  |  `\Theta`  |
 | iota       |    $\iota$    |    `\iota`    |     --     |     --     |
-| kappa      |    $\kappa$   |    `\kappa`   |     --     |     --     |
-| lambda     |   $\lambda$   |   `\lambda`   |  $\Lambda$ |  `\Lambda` |
+| kappa      |   $\kappa$    |   `\kappa`    |     --     |     --     |
+| lambda     |   $\lambda$   |   `\lambda`   | $\Lambda$  | `\Lambda`  |
 | mu         |     $\mu$     |     `\mu`     |     --     |     --     |
 | nu         |     $\nu$     |     `\nu`     |     --     |     --     |
-| xi         |     $\xi$     |     `\xi`     |    $\Xi$   |    `\Xi`   |
-| pi         |     $\pi$     |     `\pi`     |    $\Pi$   |    `\pi`   |
-| rho        |     $\rho$    |     `\rho`    |     --     |     --     |
-| sigma      |    $\sigma$   |    `\sigma`   |  $\Sigma$  |  `\Sigma`  |
-| tau        |     $\tau$    |     `\tau`    |     --     |     --     |
-| upsilon    |   $\upsilon$  |   `\upsilon`  | $\Upsilon$ | `\Upsilon` |
-| phi        |     $\phi$    |     `\phi`    |   $\Phi$   |   `\Phi`   |
-| chi        |     $\chi$    |     `\chi`    |     --     |     --     |
-| psi        |     $\psi$    |     `\psi`    |   $\Psi$   |   `\Psi`   |
-| omega      |    $\omega$   |    `\omega`   |  $\Omega$  |  `\Omega`  |
+| xi         |     $\xi$     |     `\xi`     |   $\Xi$    |   `\Xi`    |
+| pi         |     $\pi$     |     `\pi`     |   $\Pi$    |   `\pi`    |
+| rho        |    $\rho$     |    `\rho`     |     --     |     --     |
+| sigma      |   $\sigma$    |   `\sigma`    |  $\Sigma$  |  `\Sigma`  |
+| tau        |    $\tau$     |    `\tau`     |     --     |     --     |
+| upsilon    |  $\upsilon$   |  `\upsilon`   | $\Upsilon$ | `\Upsilon` |
+| phi        |    $\phi$     |    `\phi`     |   $\Phi$   |   `\Phi`   |
+| chi        |    $\chi$     |    `\chi`     |     --     |     --     |
+| psi        |    $\psi$     |    `\psi`     |   $\Psi$   |   `\Psi`   |
+| omega      |   $\omega$    |   `\omega`    |  $\Omega$  |  `\Omega`  |
 | varepsilon | $\varepsilon$ | `\varepsilon` |     --     |     --     |
 
 \newpage

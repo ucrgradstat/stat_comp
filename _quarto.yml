@@ -1,0 +1,31 @@
+project:
+  type: website
+  output-dir: docs
+
+website:
+  title: "STAT COMP"
+  navbar:
+    background: primary
+    right:
+      - href: index.qmd
+        text: Home
+      - about.qmd
+      - hpcc.qmd
+      - text: "R"
+        href: r_tutorials.qmd
+      - text: "Python"
+        href: python_tutorials.qmd
+      - submission.qmd
+      - text: "STAT GSA"
+        href: https://ucrgradstat.github.io/
+      - icon: fa-github fa-lg
+        href: https://github.com/ucrgradstat/stat_comp
+      
+
+format:
+  html:
+    theme: cosmo
+
+exclude: ["hpcc/*_cache"]
+editor: visual
+

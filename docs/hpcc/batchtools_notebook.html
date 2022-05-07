@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+  <meta charset="utf-8">
+  <meta name="generator" content="quarto-0.9.230">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <meta name="author" content="Isaac Quintanilla Salinas">
+  <meta name="description" content="Tutorial for parallel processing using the R package batchtools.">
+  <title>STAT COMP - Parallel Computing in R with batchtools</title>
+  <style>
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    span.underline{text-decoration: underline;}
+    div.column{display: inline-block; vertical-align: top; width: 50%;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    ul.task-list{list-style: none;}
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+
+  <script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+  <script src="../site_libs/quarto-nav/headroom.min.js"></script>
+  <script src="../site_libs/clipboard/clipboard.min.js"></script>
+  <meta name="quarto:offset" content="../">
+  <script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+  <script src="../site_libs/quarto-search/fuse.min.js"></script>
+  <script src="../site_libs/quarto-search/quarto-search.js"></script>
+  <script src="../site_libs/quarto-html/quarto.js"></script>
+  <script src="../site_libs/quarto-html/popper.min.js"></script>
+  <script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+  <script src="../site_libs/quarto-html/anchor.min.js"></script>
+  <link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+  <link id="quarto-text-highlighting-styles" href="../site_libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet">
+  <script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+  <link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+  <link href="../site_libs/bootstrap/bootstrap.min.css" rel="stylesheet">
+  <script id="quarto-search-options" type="application/json">{
+    "location": "navbar",
+    "copy-button": false,
+    "collapse-after": 3,
+    "panel-placement": "end",
+    "type": "overlay",
+    "limit": 20,
+    "language": {
+      "search-no-results-text": "No results",
+      "search-matching-documents-text": "matching documents",
+      "search-copy-link-title": "Copy link to search",
+      "search-hide-matches-text": "Hide additional matches",
+      "search-more-match-text": "more match in this document",
+      "search-more-matches-text": "more matches in this document",
+      "search-clear-button-title": "Clear",
+      "search-detached-cancel-button-title": "Cancel",
+      "search-submit-button-title": "Submit"
+    }
+  }</script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+  <!--[if lt IE 9]>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
+  <![endif]-->
+</head>
+<body class="nav-fixed fullcontent">
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+    <nav class="navbar navbar-expand-lg navbar-dark ">
+      <div class="navbar-container container-fluid">
+      <a class="navbar-brand" href="../index.html">
+    <span class="navbar-title">STAT COMP</span>
+  </a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+  <span class="navbar-toggler-icon"></span>
+</button>
+          <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav navbar-nav-scroll ms-auto">
+  <li class="nav-item">
+    <a class="nav-link" href="../index.html">Home</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../about.html">About</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../hpcc.html">HPCC</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../r_tutorials.html">R</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../python_tutorials.html">Python</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="../submission.html">Submissions</a>
+  </li>  
+  <li class="nav-item">
+    <a class="nav-link" href="https://ucrgradstat.github.io/">STAT GSA</a>
+  </li>  
+  <li class="nav-item compact">
+    <a class="nav-link" href="https://github.com/ucrgradstat/stat_comp"><i class="bi bi-fa-github fa-lg" role="img">
+</i> 
+ </a>
+  </li>  
+</ul>
+              <div id="quarto-search" class="" title="Search"></div>
+          </div> <!-- /navcollapse -->
+      </div> <!-- /container-fluid -->
+    </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article page-navbar">
+<!-- sidebar -->
+<!-- margin-sidebar -->
+    
+<!-- main -->
+<main class="content" id="quarto-document-content">
+<header id="title-block-header" class="quarto-title-block default">
+
+
+
+<div class="quarto-title"><h1 class="title display-7">Parallel Computing in R with <code>batchtools</code></h1><div class="quarto-description"><p>Tutorial for parallel processing using the R package batchtools.</p></div></div><div class="quarto-title-meta"><div><div class="quarto-title-meta-heading">Author</div><div class="quarto-title-meta-contents"><div class="quarto-title-authors"><div><div>
+<p>Isaac Quintanilla Salinas</p>
+</div></div></div></div></div><div><div class="quarto-title-meta-heading">Published</div><div class="quarto-title-meta-contents"><p class="date">May 7, 2022</p></div></div></div></header>
+<section id="introduction" class="level1">
+<h1>Introduction</h1>
+<p>R is designed to only use one cpu (or core) when running tasks. However, you may have access to a computer cluster<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> that allows you to access more RAM and cpus. The use of more than one cpu is known as parallel computing in R. The goal of this tutorial is to provide the basics of using the <code>batchtools</code> package and utilizing more cores in a cluster.</p>
+<p>This tutorial is built off the information provided by UCR’s High Performance Computing Center tutorial of <code>batchtools</code> package. This tutorial uses a simulation study to show you the power of <code>batchtools</code>. For more information visit their help documentation for <a href="https://hpcc.ucr.edu/manuals_linux-cluster_parallelR.html">batchtools</a>.</p>
+<p>This tutorial is meant to be run on the <a href="https://hpcc.ucr.edu/">HPCC</a> cluster at UCR. You will need an account to the HPCC cluster. If you are a graduate student in UCR’s <a href="https://statistics.ucr.edu/">Statistics Department</a>, contact the UCR Statistics Graduate Student Association to gain access.</p>
+<p>This tutorial conducts different simulation scenarios to be submitted as jobs. It requires an amount of set up to be effective. There is an an R script that you can use that may provide better insight on using <code>batchtools</code>. You can access R script <a href="batchtools.R">here</a></p>
+</section>
+<section id="files-functions-and-packages" class="level1">
+<h1>Files, Functions and Packages</h1>
+<section id="files" class="level2">
+<h2 class="anchored" data-anchor-id="files">Files</h2>
+<p>Before you begin, download these files to the directory you are working with. The <code>slurm.tmpl</code> file provides information to the slurm scheduler. The <code>.batchtools.conf.R</code> file tells R to create a cluster function for slurm. The period in front of <code>.batchtools.conf.R</code> will hide the file in your directory. It is there, it is just not displayed.</p>
+<div class="cell">
+<div class="sourceCode" id="cb1"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">download.file</span>(<span class="st">"https://bit.ly/3gZJBsy"</span>, <span class="st">"slurm.tmpl"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">download.file</span>(<span class="st">"https://bit.ly/3nvSNHA"</span>, <span class="st">".batchtools.conf.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="packages" class="level2">
+<h2 class="anchored" data-anchor-id="packages">Packages</h2>
+<p>You will need to use 2 R packages: <code>RenvModule</code> and <code>batchtools</code>. The <code>RenvModule</code><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> package provides the tools to interact with modules in the cluster. The <code>batchtools</code> package provides the tools to parallelize your code. Both are needed. For this tutorial, you will also need to have the <code>mvtrnorm</code> package installed.</p>
+<div class="cell">
+<div class="sourceCode" id="cb2"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(RenvModule)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(batchtools)</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(mvtnorm)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="functions" class="level2">
+<h2 class="anchored" data-anchor-id="functions">Functions</h2>
+<section id="module" class="level3">
+<h3 class="anchored" data-anchor-id="module"><code>module()</code></h3>
+<p>The <code>module()</code> function loads different modules into the R environment.</p>
+</section>
+<section id="makeregistry" class="level3">
+<h3 class="anchored" data-anchor-id="makeregistry"><code>makeRegistry()</code></h3>
+<p>The <code>makeRegistry()</code> function creates a registry for <code>batchtools</code>. You can think of the registry as the communication center for R, your functions, and the cluster. It will store everything in a directory. The <code>makeRegistry()</code> function needs the argument <code>file.dir</code> argument, the location to store the registry, and <code>conf.file=.batchtools.conf.R</code>. Store the output from the function into an R object.</p>
+</section>
+<section id="batchmap" class="level3">
+<h3 class="anchored" data-anchor-id="batchmap"><code>batchMap()</code></h3>
+<p>The <code>batchMap()</code> function creates jobs to be submitted from a cluster. The first argument, <code>fun</code>, is the user-generated function and the additional arguments are for the user-generated function. The <code>batchMap()</code> function will produce a data frame of ids for each job as an output. The job ids are the numeric index of each element in a list/vector.</p>
+</section>
+<section id="submitjobs" class="level3">
+<h3 class="anchored" data-anchor-id="submitjobs"><code>submitJobs()</code></h3>
+<p>The <code>submitJobs()</code> function will submit jobs to the cluster. It will need output from the <code>batchMap()</code> function as the first argument. Additionally, it will need the location og the registry (<code>reg</code> argument), from a stored R object, and a list of resources (<code>resources</code> argument).</p>
+</section>
+<section id="getstatus" class="level3">
+<h3 class="anchored" data-anchor-id="getstatus"><code>getStatus()</code></h3>
+<p>The <code>getStatus()</code> function checks the status of your jobs and provides information of each jobs state.</p>
+</section>
+<section id="killjobs" class="level3">
+<h3 class="anchored" data-anchor-id="killjobs"><code>killJobs()</code></h3>
+<p>The <code>killJobs()</code> function will kill all your jobs. This is equivalent to <code>scancel</code>.</p>
+</section>
+<section id="loadresult" class="level3">
+<h3 class="anchored" data-anchor-id="loadresult"><code>loadResult()</code></h3>
+<p>The <code>loadResult()</code> function will load the results of each job. You will need to specify the id to load the results.</p>
+</section>
+<section id="clearregistry" class="level3">
+<h3 class="anchored" data-anchor-id="clearregistry"><code>clearRegistry()</code></h3>
+<p>The <code>clearRegistry()</code> function will delete files in the registry to re-submit jobs.</p>
+</section>
+<section id="removeregistry" class="level3">
+<h3 class="anchored" data-anchor-id="removeregistry"><code>removeRegistry()</code></h3>
+<p>The <code>removeRegistry()</code> function will delete the entire registry.</p>
+</section>
+</section>
+</section>
+<section id="simulation-example" class="level1">
+<h1>Simulation Example</h1>
+<p>To demonstrate how to use the <code>batchtools</code> package in R, we conduct several simulation studies showing how the estimates from the ordinary least squares estimator leads to unbiased results. We will simulate data from the following models:</p>
+<p><span class="math display">\[
+Y \sim N(20+30X,\ 3)
+\]</span> <span class="math display">\[
+Y \sim N(5-8X_1+2X_2,\ 3)
+\]</span></p>
+<p><span class="math display">\[
+Y \sim N(5+4X_1-5X_2-3X_3,\ 3)
+\]</span></p>
+<p><span class="math display">\[
+Y \sim N(5+4X_1+-5X_2-3X_3+6X_4,\ 3)
+\]</span> Each simulation scenario with have 500 data sets with 200 observations. The values for the predictor variables will be simulated by multivariate normal distributions. The mean vector for the predictors simulation are <span class="math inline">\((-2, 0)^T\)</span>, <span class="math inline">\((-2, 0)^T\)</span>, <span class="math inline">\((-2, 0, 2)^T\)</span>, <span class="math inline">\((-2, 0, 2 8)^T\)</span>. Each covariance for the predictor simulation will be an identity matrix.</p>
+<section id="simulation-parameters" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-parameters">Simulation Parameters</h2>
+<p>The simulation parameters will be stored in a list. Each element in the list will contain information of the about the simulation and the formula for the <code>lm()</code> function.</p>
+<div class="cell">
+<div class="sourceCode" id="cb3"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>sim_list <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="fu">list</span>(<span class="at">N =</span> <span class="dv">500</span>, <span class="co"># Number of Data sets</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>                      <span class="at">nobs =</span> <span class="dv">200</span>, <span class="co"># Number of observations</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>                      <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">20</span>, <span class="dv">30</span>), <span class="co"># beta parameters</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xmeans =</span> <span class="fu">c</span>(<span class="dv">0</span>), <span class="co"># Means for predictors</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xsigs =</span> <span class="fu">diag</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">1</span>)), <span class="co"># Variance for predictor</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sigma =</span> <span class="dv">3</span>, <span class="co"># Variance for error term</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>                      <span class="at">formula =</span> y <span class="sc">~</span> x), <span class="co">#Formula</span></span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">list</span>(<span class="at">N =</span> <span class="dv">500</span>, <span class="co"># Number of Data sets</span></span>
+<span id="cb3-9"><a href="#cb3-9" aria-hidden="true" tabindex="-1"></a>                      <span class="at">nobs =</span> <span class="dv">200</span>, <span class="co"># Number of observations</span></span>
+<span id="cb3-10"><a href="#cb3-10" aria-hidden="true" tabindex="-1"></a>                      <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="sc">-</span><span class="dv">8</span>, <span class="dv">2</span>), <span class="co"># beta parameters</span></span>
+<span id="cb3-11"><a href="#cb3-11" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xmeans =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">0</span>), <span class="co"># Means for predictors</span></span>
+<span id="cb3-12"><a href="#cb3-12" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xsigs =</span> <span class="fu">diag</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">2</span>)), <span class="co"># Variance for predictor</span></span>
+<span id="cb3-13"><a href="#cb3-13" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sigma =</span> <span class="dv">3</span>, <span class="co"># Variance for error term</span></span>
+<span id="cb3-14"><a href="#cb3-14" aria-hidden="true" tabindex="-1"></a>                      <span class="at">formula =</span> y <span class="sc">~</span> x<span class="fl">.1</span> <span class="sc">+</span> x<span class="fl">.2</span>), <span class="co">#Formula</span></span>
+<span id="cb3-15"><a href="#cb3-15" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">list</span>(<span class="at">N =</span> <span class="dv">500</span>, <span class="co"># Number of Data sets</span></span>
+<span id="cb3-16"><a href="#cb3-16" aria-hidden="true" tabindex="-1"></a>                      <span class="at">nobs =</span> <span class="dv">200</span>, <span class="co"># Number of observations</span></span>
+<span id="cb3-17"><a href="#cb3-17" aria-hidden="true" tabindex="-1"></a>                      <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="sc">-</span><span class="dv">5</span>, <span class="sc">-</span><span class="dv">3</span>), <span class="co"># beta parameters</span></span>
+<span id="cb3-18"><a href="#cb3-18" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xmeans =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">2</span>), <span class="co"># Means for predictors</span></span>
+<span id="cb3-19"><a href="#cb3-19" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xsigs =</span> <span class="fu">diag</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">3</span>)), <span class="co"># Variance for predictor</span></span>
+<span id="cb3-20"><a href="#cb3-20" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sigma =</span> <span class="dv">3</span>, <span class="co"># Variance for error term</span></span>
+<span id="cb3-21"><a href="#cb3-21" aria-hidden="true" tabindex="-1"></a>                      <span class="at">formula =</span> y <span class="sc">~</span> x<span class="fl">.1</span> <span class="sc">+</span> x<span class="fl">.2</span> <span class="sc">+</span> x<span class="fl">.3</span>),  <span class="co">#Formula</span></span>
+<span id="cb3-22"><a href="#cb3-22" aria-hidden="true" tabindex="-1"></a>                 <span class="fu">list</span>(<span class="at">N =</span> <span class="dv">500</span>, <span class="co"># Number of Data sets</span></span>
+<span id="cb3-23"><a href="#cb3-23" aria-hidden="true" tabindex="-1"></a>                      <span class="at">nobs =</span> <span class="dv">200</span>, <span class="co"># Number of observations</span></span>
+<span id="cb3-24"><a href="#cb3-24" aria-hidden="true" tabindex="-1"></a>                      <span class="at">beta =</span> <span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">4</span>, <span class="sc">-</span><span class="dv">5</span>, <span class="sc">-</span><span class="dv">3</span>, <span class="dv">6</span>), <span class="co"># beta parameters</span></span>
+<span id="cb3-25"><a href="#cb3-25" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xmeans =</span> <span class="fu">c</span>(<span class="sc">-</span><span class="dv">2</span>, <span class="dv">0</span>, <span class="dv">2</span>, <span class="dv">8</span>), <span class="co"># Means for predictors</span></span>
+<span id="cb3-26"><a href="#cb3-26" aria-hidden="true" tabindex="-1"></a>                      <span class="at">xsigs =</span> <span class="fu">diag</span>(<span class="fu">rep</span>(<span class="dv">1</span>, <span class="dv">4</span>)), <span class="co"># Variance for predictor</span></span>
+<span id="cb3-27"><a href="#cb3-27" aria-hidden="true" tabindex="-1"></a>                      <span class="at">sigma =</span> <span class="dv">3</span>, <span class="co"># Variance for error term</span></span>
+<span id="cb3-28"><a href="#cb3-28" aria-hidden="true" tabindex="-1"></a>                      <span class="at">formula =</span> y <span class="sc">~</span> x<span class="fl">.1</span> <span class="sc">+</span> x<span class="fl">.2</span> <span class="sc">+</span> x<span class="fl">.3</span> <span class="sc">+</span> x<span class="fl">.4</span>) <span class="co">#Formula</span></span>
+<span id="cb3-29"><a href="#cb3-29" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="simulation-functions" class="level2">
+<h2 class="anchored" data-anchor-id="simulation-functions">Simulation Functions</h2>
+<p>The function below generates 1 data set from a simulation scenario above and returns a data frame.</p>
+<div class="cell">
+<div class="sourceCode" id="cb4"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>data_set_sim <span class="ot">&lt;-</span> <span class="cf">function</span>(seed, nobs, beta, sigma, xmeans, xsigs){ <span class="co"># Simulates the data set</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set.seed</span>(seed) <span class="co"># Sets a seed</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>  xrn <span class="ot">&lt;-</span> <span class="fu">rmvnorm</span>(nobs, <span class="at">mean =</span> xmeans, <span class="at">sigma =</span> xsigs) <span class="co"># Simulates Predictors</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  xped <span class="ot">&lt;-</span> <span class="fu">cbind</span>(<span class="fu">rep</span>(<span class="dv">1</span>,nobs),xrn) <span class="co"># Creating Design Matrix</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  y <span class="ot">&lt;-</span> xped <span class="sc">%*%</span> beta <span class="sc">+</span> <span class="fu">rnorm</span>(nobs ,<span class="dv">0</span>, sigma) <span class="co"># Simulating Y</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  df <span class="ot">&lt;-</span> <span class="fu">data.frame</span>(<span class="at">x=</span>xrn, <span class="at">y=</span>y) <span class="co"># Creating Data Frame</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(df)</span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The function needs the following arguments:</p>
+<ul>
+<li><code>seed</code>: the value to set for the random number generator</li>
+<li><code>nobs</code>: number of observations</li>
+<li><code>beta</code>: a vector specifying the true values for the regression coefficients (<span class="math inline">\(\beta_0\)</span>, <span class="math inline">\(\beta_1\)</span>, <span class="math inline">\(\beta_2\)</span>, <span class="math inline">\(\beta_3\)</span>)</li>
+<li><code>sigma</code>: the variance for the model above</li>
+<li><code>xmeans</code>: a vector of means used to generate the values for <span class="math inline">\(X_1\)</span>, <span class="math inline">\(X_2\)</span>, and <span class="math inline">\(X_3\)</span></li>
+<li><code>xsigs</code>: a matrix for the covariance for <span class="math inline">\(X_1\)</span>, <span class="math inline">\(X_2\)</span>, and <span class="math inline">\(X_3\)</span></li>
+</ul>
+<p>The function below generates the data for a simulation scenario and returns a list of data (in a list) and the formula to assess the data for the <code>lm()</code> function</p>
+<div class="cell">
+<div class="sourceCode" id="cb5"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>data_sim <span class="ot">&lt;-</span> <span class="cf">function</span>(data){ <span class="co"># Simulates the data set</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  df_list <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span>data<span class="sc">$</span>N, data_set_sim,</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>                    <span class="at">nobs =</span> data<span class="sc">$</span>nobs, <span class="at">beta =</span> data<span class="sc">$</span>beta, <span class="at">sigma =</span> data<span class="sc">$</span>sigma,</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>                    <span class="at">xmeans =</span> data<span class="sc">$</span>xmeans, <span class="at">xsigs =</span> data<span class="sc">$</span>xsigs)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(<span class="fu">list</span>(<span class="at">df_list =</span> df_list, <span class="at">formula =</span> data<span class="sc">$</span>formula))</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>The function below takes the data generated from the <code>data_sim()</code> and fits a linear regression model. The function wraps around the <code>lm()</code> function and returns estimated regression coefficients.</p>
+</section>
+</section>
+<section id="parallelization" class="level1">
+<h1>Parallelization</h1>
+<section id="function" class="level2">
+<h2 class="anchored" data-anchor-id="function">Function</h2>
+<p>The function below process the data and implements the <code>lm()</code> to the data. This is the function that will be used in <code>batchtools</code>. First, the function obtains the number of data sets it will process. Second, it creates the <code>lm_coef()</code> function which applies the <code>lm()</code> function to the data<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a>. Third, a parallel processor is applied to go through the data <a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a>. Lastly, the results are converted to a matrix and returned as the output.</p>
+<div class="cell">
+<div class="sourceCode" id="cb6"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>parallel_lm<span class="ot">&lt;-</span><span class="cf">function</span>(data){</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>  ll<span class="ot">&lt;-</span><span class="fu">length</span>(data<span class="sc">$</span>df_list)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a>  lm_coef <span class="ot">&lt;-</span> <span class="cf">function</span>(formula, data){ <span class="co"># Applying a Ordinary Least Squares </span></span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>    lm_res <span class="ot">&lt;-</span> <span class="fu">lm</span>(formula, <span class="at">data =</span> data) <span class="co"># Find OLS Estimates</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>    <span class="fu">return</span>(<span class="fu">as.vector</span>(<span class="fu">coef</span>(lm_res)))<span class="co"># Obtaining </span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  }</span>
+<span id="cb6-8"><a href="#cb6-8" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-9"><a href="#cb6-9" aria-hidden="true" tabindex="-1"></a>  results <span class="ot">&lt;-</span> parallel<span class="sc">::</span><span class="fu">mclapply</span>(data<span class="sc">$</span>df_list, lm_coef, <span class="at">formula =</span> data<span class="sc">$</span>formula, <span class="co"># Applies lm_coef </span></span>
+<span id="cb6-10"><a href="#cb6-10" aria-hidden="true" tabindex="-1"></a>                                <span class="at">mc.cores =</span> <span class="dv">8</span>) <span class="co"># Using the parallel package to parallelize </span></span>
+<span id="cb6-11"><a href="#cb6-11" aria-hidden="true" tabindex="-1"></a>  </span>
+<span id="cb6-12"><a href="#cb6-12" aria-hidden="true" tabindex="-1"></a>  mat<span class="ot">&lt;-</span><span class="fu">matrix</span>(<span class="fu">unlist</span>(results), <span class="at">nrow =</span> ll, <span class="at">byrow =</span> T)</span>
+<span id="cb6-13"><a href="#cb6-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">return</span>(mat)</span>
+<span id="cb6-14"><a href="#cb6-14" aria-hidden="true" tabindex="-1"></a>}</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="execution" class="level2">
+<h2 class="anchored" data-anchor-id="execution">Execution</h2>
+<section id="modules" class="level3">
+<h3 class="anchored" data-anchor-id="modules">Modules</h3>
+<p>Load the slurm module into R.</p>
+<div class="cell">
+<div class="sourceCode" id="cb7"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">module</span>(<span class="st">'load'</span>,<span class="st">'slurm'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="registry" class="level3">
+<h3 class="anchored" data-anchor-id="registry">Registry</h3>
+<p>Create a registry and store it in an R object.</p>
+<div class="cell">
+<div class="sourceCode" id="cb8"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>reg <span class="ot">&lt;-</span> <span class="fu">makeRegistry</span>(<span class="at">file.dir=</span><span class="st">"myregdir"</span>, <span class="at">conf.file=</span><span class="st">".batchtools.conf.R"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="resources" class="level3">
+<h3 class="anchored" data-anchor-id="resources">Resources</h3>
+<p>Create a list with the following elements and store it in an R object:</p>
+<ul>
+<li><p><code>partition</code>: The cluster partition to use (<code>"stastdept"</code>)</p></li>
+<li><p><code>walltime</code>: The time to run the job in seconds (<code>120</code>)</p></li>
+<li><p><code>ntasks</code>: The number of tasks to complete (<code>1</code>)</p></li>
+<li><p><code>ncpus</code>: The number of cpus to complete the task (<code>8</code>)</p></li>
+<li><p><code>memory</code>: How much memory is being used in MB (<code>1024</code>)</p></li>
+</ul>
+<div class="cell">
+<div class="sourceCode" id="cb9"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>res <span class="ot">&lt;-</span> <span class="fu">list</span>(<span class="at">partition=</span><span class="st">"statsdept"</span>, <span class="at">walltime=</span><span class="dv">120</span>, <span class="at">ntasks=</span><span class="dv">1</span>, <span class="at">ncpus=</span><span class="dv">8</span>, <span class="at">memory=</span><span class="dv">1024</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="batch-jobs-prep" class="level3">
+<h3 class="anchored" data-anchor-id="batch-jobs-prep">Batch Jobs Prep</h3>
+<p>Use to <code>batchMap()</code> function to create the jobs that need to be submitted into the cluster and store it an R object.</p>
+<div class="cell">
+<div class="sourceCode" id="cb10"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>submission_id <span class="ot">&lt;-</span> <span class="fu">batchMap</span>(parallel_lm, <span class="at">data =</span> standard_data)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="submitting-jobs" class="level3">
+<h3 class="anchored" data-anchor-id="submitting-jobs">Submitting Jobs</h3>
+<p>Submit the jobs using the <code>submitJobs()</code> and store it in an R object.</p>
+<div class="cell">
+<div class="sourceCode" id="cb11"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>done <span class="ot">&lt;-</span> <span class="fu">submitJobs</span>(submission_id, <span class="at">reg=</span>reg, <span class="at">resources=</span>res)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="getting-job-status" class="level3">
+<h3 class="anchored" data-anchor-id="getting-job-status">Getting Job Status</h3>
+<p>Use the <code>getStatus()</code> function to check on the status of your jobs.</p>
+<div class="cell">
+<div class="sourceCode" id="cb12"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getStatus</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+</section>
+</section>
+<section id="results" class="level1">
+<h1>Results</h1>
+<p>Once your jobs are completed, you can check the results. First you will need to extract the results from the registry and store it in an R object.</p>
+<div class="cell">
+<div class="sourceCode" id="cb13"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>parallel_results <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="fu">length</span>(standard_data), loadResult) <span class="co">#obtains the results of each job adds them as an element in a list</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Now use the <code>colMeans()</code> function to see if the simulation study worked.</p>
+<div class="cell">
+<div class="sourceCode" id="cb14"><pre class="sourceCode r cell-code code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">lapply</span>(parallel_results, colMeans)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="notes" class="level1">
+<h1>Notes</h1>
+<section id="error-reached-submission-limit-or-resources-limit" class="level2">
+<h2 class="anchored" data-anchor-id="error-reached-submission-limit-or-resources-limit">Error: Reached Submission Limit or Resources Limit</h2>
+<p>If You receive an error about reaching limits, do not worry about it. The slurm system will take care of this. Type the following below to cancel all your jobs and try again.</p>
+<div class="cell">
+<div class="sourceCode" id="cb15"><pre class="sourceCode bash cell-code code-with-copy"><code class="sourceCode bash"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="ex">squeue</span> <span class="at">--user</span> <span class="va">$USER</span> <span class="at">--noheader</span> <span class="at">--format</span> <span class="st">'%i'</span> <span class="kw">|</span> <span class="fu">xargs</span> scancel</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+
+
+
+</section>
+</section>
+
+<div id="quarto-appendix" class="default"><section class="footnotes footnotes-end-of-document" role="doc-endnotes"><h2 class="anchored quarto-appendix-heading">Footnotes</h2>
+
+<ol>
+<li id="fn1" role="doc-endnote"><p>The cluster has a scheduling system implemented.<a href="#fnref1" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn2" role="doc-endnote"><p>Fun Fact: This package is from HPCC<a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn3" role="doc-endnote"><p>User created functions needs to be created within the function to be loaded in <code>batchtools</code><a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+<li id="fn4" role="doc-endnote"><p>For more information about parallel processing with the <code>parallel</code> package, visit <a href="parallel_notebook.nb.html">here</a><a href="#fnref4" class="footnote-back" role="doc-backlink">↩︎</a></p></li>
+</ol>
+</section></div></main> <!-- /main -->
+<script type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    target: function(trigger) {
+      return trigger.previousElementSibling;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    setTimeout(function() {
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      let href = ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const cites = ref.parentNode.getAttribute('data-cites').split(' ');
+    tippyHover(ref, function() {
+      var popup = window.document.createElement('div');
+      cites.forEach(function(cite) {
+        var citeDiv = window.document.createElement('div');
+        citeDiv.classList.add('hanging-indent');
+        citeDiv.classList.add('csl-entry');
+        var biblioDiv = window.document.getElementById('ref-' + cite);
+        if (biblioDiv) {
+          citeDiv.innerHTML = biblioDiv.innerHTML;
+        }
+        popup.appendChild(citeDiv);
+      });
+      return popup.innerHTML;
+    });
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+</body></html>

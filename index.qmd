@@ -1,0 +1,19 @@
+---
+pagetitle: "Home"
+format: html
+section-divs: false
+toc: false
+editor: visual
+---
+
+We hope you find the tutorials provided by the graduate students informative! If you have any questions, please feel free to email us at ucr.grad.stat\@gmail.com.
+
+### UCR Statistics Graduate Student Association
+
+Visit our website for more information about what the UCR Statistics GSA is doing.
+
+[ucrgradstat.github.io](https://ucrgradstat.github.io/)
+
+### Submitting Tutorials
+
+If there is no tutorials for an issue you are facing, we encourage you to ask faculty for help. Once you resolved your issue, we encourage you to write and submit a tutorial, so the next student will have an easier time when facing your issue. For submitting a tutorial, please read the following page: [Submissions](https://ucrgradstat.github.io/stat_comp/submission.html).
