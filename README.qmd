@@ -39,7 +39,7 @@ These lines tells Quarto how to build the website. The `output-dir` indicates wh
 
 -   Use `.gitignore` to ignore cache folders from files
 
--   Use `theme.css` to change the appearance of the website
+-   Use `styles.css` to change the appearance of the website
 
 ## Tutorials
 
