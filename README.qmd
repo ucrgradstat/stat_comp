@@ -23,7 +23,6 @@ The `_quarto.yml` file contains all the information needed to build the website.
       type: website
       output-dir: docs
       render: 
-        - README.qmd
         - index.qmd
         - about.qmd
         - hpcc.qmd

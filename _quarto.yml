@@ -2,7 +2,6 @@ project:
   type: website
   output-dir: docs
   render: 
-    - README.qmd
     - index.qmd
     - about.qmd
     - hpcc.qmd
