@@ -2,7 +2,7 @@
 title: "Parallel Computing in R with `batchtools`"
 author: "Isaac Quintanilla Salinas"
 description: Tutorial for parallel processing using the R package batchtools.
-date: "`r format(Sys.time(),'%m-%d-%Y')`"
+date: "12-20-2020"
 output: 
   html_notebook:
     toc: true
@@ -32,8 +32,8 @@ This tutorial conducts different simulation scenarios to be submitted as jobs. I
 Before you begin, download these files to the directory you are working with. The `slurm.tmpl` file provides information to the slurm scheduler. The `.batchtools.conf.R` file tells R to create a cluster function for slurm. The period in front of `.batchtools.conf.R` will hide the file in your directory. It is there, it is just not displayed.
 
 ```{r}
-download.file("https://bit.ly/3gZJBsy", "slurm.tmpl")
-download.file("https://bit.ly/3nvSNHA", ".batchtools.conf.R")
+download.file("https://hpcc.ucr.edu/_support_docs/tutorials/slurm.tmpl", "slurm.tmpl")
+download.file("https://hpcc.ucr.edu/_support_docs/tutorials/.batchtools.conf.R", ".batchtools.conf.R")
 ```
 
 ## Packages

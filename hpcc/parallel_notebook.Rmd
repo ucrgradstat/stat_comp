@@ -2,7 +2,7 @@
 title: "Parallel Computing in R with `parallel`"
 author: "Isaac Quintanilla Salinas"
 description: Tutorial for parallel processing using the R package parallel.
-date: "`r format(Sys.time(),'%m-%d-%Y')`"
+date: "12-19-2020"
 output: 
   html_notebook:
     toc: true
@@ -20,11 +20,11 @@ R is designed to only use one cpu (or core) when running tasks. However, a compu
 
 For more information about parallel processing in R, visit the following sites:
 
- - [https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html](https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html)
- - [https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html](https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html)
- - [https://psu-psychology.github.io/r-bootcamp-2018/talks/parallel_r.html](https://psu-psychology.github.io/r-bootcamp-2018/talks/parallel_r.html)
+-   <https://nceas.github.io/oss-lessons/parallel-computing-in-r/parallel-computing-in-r.html>
+-   <https://dept.stat.lsa.umich.edu/~jerrick/courses/stat701/notes/parallel.html>
+-   <https://psu-psychology.github.io/r-bootcamp-2018/talks/parallel_r.html>
 
-# Background 
+# Background
 
 The `parallel` package allows you to use multiple cpus at the same time to complete repetitive tasks. For example, if you have to run a simulation study with 100 data sets, you can task 4 cpus to analyze 25 data sets at the same time. This ideally will take a forth of the time it will take 1 cpu to complete 100 data sets.
 
@@ -38,24 +38,27 @@ The forking method is implemented when using the `mc*()` functions. Below is a l
 
 ### Pros:
 
-- Easier to implement
+-   Easier to implement
 
-- Your environment is copied to the cpu
+-   Your environment is copied to the cpu
 
-- Has the potential to use less resources
+-   Has the potential to use less resources
 
-- Wraps USER function with the `try()` function
+-   Wraps USER function with the `try()` function
 
 ### Cons:
 
-- Only works on POSIX systems (Mac or Linux)
+-   Only works on POSIX systems (Mac or Linux)
 
-- Does not work with multiple nodes^[You can think of as nodes as the processor. Each processor has a set number of cpus, if you need more cpus, you will need to use another node.]
+-   Does not work with multiple nodes[^1]
 
-- May cause cross-contamination because the environment may change^[Mostly occurs with random number generation; however, this is generally not a problem.]
+-   May cause cross-contamination because the environment may change[^2]
+
+[^1]: You can think of as nodes as the processor. Each processor has a set number of cpus, if you need more cpus, you will need to use another node.
+
+[^2]: Mostly occurs with random number generation; however, this is generally not a problem.
 
 Generally speaking, R copies its environment to a cpu and runs the process.
-
 
 ## Socket
 
@@ -63,27 +66,27 @@ The socket method is implemented when using the `par*()` functions. Below is a l
 
 ### Pros:
 
-- Works on any system (Windows, Mac, and Linux)
+-   Works on any system (Windows, Mac, and Linux)
 
-- Each process is unique
+-   Each process is unique
 
-- No cross-contamination
+-   No cross-contamination
 
-- Can be used when multiple nodes are involved
+-   Can be used when multiple nodes are involved
 
 ### Cons:
 
-- The entire environment (including loaded functions) must be specified
+-   The entire environment (including loaded functions) must be specified
 
-- More resource intensive
+-   More resource intensive
 
-- `try()` function is not implemented, when one cpu fails, the entire cluster fails
+-   `try()` function is not implemented, when one cpu fails, the entire cluster fails
 
 Generally speaking, R creates a new environment on each cpu.
 
 ## Where to parallelize?
 
-Parallel computing requires repetitive tasks to be independent of each other. The results from one task must not be used as input for another task. Therefore, identify blocks of code where repetition is involved. This can be either `for` loops or `*apply()` functions. 
+Parallel computing requires repetitive tasks to be independent of each other. The results from one task must not be used as input for another task. Therefore, identify blocks of code where repetition is involved. This can be either `for` loops or `*apply()` functions.
 
 Other locations to parallelize your code are bottlenecks. Having multiple cores processing bottlenecks helps speed up your code. For more information about bottlenecks or code efficiency, visit the Advanced R website: [adv-r.hadley.nz](https://adv-r.hadley.nz/).
 
@@ -91,16 +94,15 @@ Identifying the location to parallelize may be challenging due to so many option
 
 # Simulation Example
 
-To demonstrate how to use the `parallel` package in R, we conduct a simple simulation study showing how the estimates from the ordinary least squares estimator leads to unbiased results. 
+To demonstrate how to use the `parallel` package in R, we conduct a simple simulation study showing how the estimates from the ordinary least squares estimator leads to unbiased results.
 
 $$
 Y \sim N(\beta_0+X_1\beta_1+X_4\beta_5+X_3\beta_3,\sigma^2)
 $$
 
-
 ## Simulation Functions
 
-The function below generates data from the model above and returns a data frame. 
+The function below generates data from the model above and returns a data frame.
 
 ```{r}
 data_sim <- function(seed, nobs, beta, sigma, xmeans, xsigs){
@@ -115,14 +117,14 @@ data_sim <- function(seed, nobs, beta, sigma, xmeans, xsigs){
 
 The function needs the following arguments:
 
- - `seed`: the value to set for the random number generator
- - `nobs`: number of observations
- - `beta`: a vector specifying the true values for the regression coefficients ($\beta_0$, $\beta_1$, $\beta_2$, $\beta_3$)
- - `sigma`: the variance for the model above
- - `xmeans`: a vector of means used to generate the values for $X_1$, $X_2$, and $X_3$
- - `xsigs`: a matrix for the covariance for $X_1$, $X_2$, and $X_3$
+-   `seed`: the value to set for the random number generator
+-   `nobs`: number of observations
+-   `beta`: a vector specifying the true values for the regression coefficients ($\beta_0$, $\beta_1$, $\beta_2$, $\beta_3$)
+-   `sigma`: the variance for the model above
+-   `xmeans`: a vector of means used to generate the values for $X_1$, $X_2$, and $X_3$
+-   `xsigs`: a matrix for the covariance for $X_1$, $X_2$, and $X_3$
 
-The function below takes the data generated from the `data_sim()` and fits a linear regression model. The function wraps around the `lm()` function and returns estimated regression coefficients.   
+The function below takes the data generated from the `data_sim()` and fits a linear regression model. The function wraps around the `lm()` function and returns estimated regression coefficients.
 
 ```{r}
 parallel_lm <- function(data){
@@ -139,8 +141,6 @@ For this tutorial, you will need the `parallel` and `mvtnorm` packages.
 library(parallel)
 library(mvtnorm)
 ```
-
-
 
 ### Setting Parameters
 
@@ -166,13 +166,15 @@ Sys.time()-start
 
 ## Detecting Cores
 
-The `parallel` package has a function that can detect the number of cores available on your computer. Use the `detectCores()` function to find how many cpus your computer has^[The function provides the number of logical cores and not physical cores. This is due to multithreading.].
+The `parallel` package has a function that can detect the number of cores available on your computer. Use the `detectCores()` function to find how many cpus your computer has[^3].
+
+[^3]: The function provides the number of logical cores and not physical cores. This is due to multithreading.
 
 ```{r}
 detectCores()
 ```
 
-For this example, I will use 8 cpus. You can change the number of cpus based on your computer. 
+For this example, I will use 8 cpus. You can change the number of cpus based on your computer.
 
 ```{r}
 ncores <- 8
@@ -202,29 +204,23 @@ mclapply_results <- mclapply(parallel_data, parallel_lm, mc.cores = ncores)
 
 ### Functions
 
-Using `parLapply()` function requires setting up the cluster. There are two functions needed to set up the cluster: `makeCluster()` and `clusterExport()`. Once your analysis is finished, you will need to close the cluster using the `stopCluster()` function. 
-
+Using `parLapply()` function requires setting up the cluster. There are two functions needed to set up the cluster: `makeCluster()` and `clusterExport()`. Once your analysis is finished, you will need to close the cluster using the `stopCluster()` function.
 
 #### `makeCluster()`
 
-The `makeCluster()` function sets up the cluster in your computer. You only need to specify the number of cores to use (`ncores`) and store it in an R object (`cl`) 
-
+The `makeCluster()` function sets up the cluster in your computer. You only need to specify the number of cores to use (`ncores`) and store it in an R object (`cl`)
 
 #### `clusterExport()`
 
-The `clusterExport()` function is needed to export user-created functions, package functions, or data to the cluster.
-You will need to specify the cluster (`cl`) to export the information and the name of the functions or data in a character vector. 
-
+The `clusterExport()` function is needed to export user-created functions, package functions, or data to the cluster. You will need to specify the cluster (`cl`) to export the information and the name of the functions or data in a character vector.
 
 #### `parLapply()`
 
 The `parLapply()` is the parallel computing component. It is used the same way as the `lapply()` function. The only difference is that you will need to specify the cluster (`cl`) as the first argument. The second argument goes as the `lapply()` function.
 
-
 #### `stopCluster()`
 
 The `stopCluster()` function closes the cluster down.
-
 
 ### Implementation
 
@@ -257,14 +253,12 @@ rowMeans(mclapply_mat)
 rowMeans(parLapply_mat)
 ```
 
-
 # Notes
 
 ## Speed Gains
 
-When parallelizing your code, the speed gains may not be noticeable. When using the `parallel` package, R assigns elements of a list or vector into different cores, known as overhead, which takes time. The time it takes to load the data may be longer than processing the data. Therefore, it may not be faster or take longer than using the `*apply()` functions.  It may be best to use one core or split up the data on your own. However, when processing your data takes much longer than your overhead time, the speed gains are noticeable.
+When parallelizing your code, the speed gains may not be noticeable. When using the `parallel` package, R assigns elements of a list or vector into different cores, known as overhead, which takes time. The time it takes to load the data may be longer than processing the data. Therefore, it may not be faster or take longer than using the `*apply()` functions. It may be best to use one core or split up the data on your own. However, when processing your data takes much longer than your overhead time, the speed gains are noticeable.
 
 ## Hyper-threading
 
-Certain computer processors have cores that are multi-threaded (hyper-threading). This means the computer views 1 physical core as 2 logical cores. While you certainly specify double the number of physical cores for your cluster, the speed gains is not equivalent as using proper physical cores. In my experience, it is not worth using the logical cores and just specify the number of physical cores in your computer. 
-
+Certain computer processors have cores that are multi-threaded (hyper-threading). This means the computer views 1 physical core as 2 logical cores. While you certainly specify double the number of physical cores for your cluster, the speed gains is not equivalent as using proper physical cores. In my experience, it is not worth using the logical cores and just specify the number of physical cores in your computer.
